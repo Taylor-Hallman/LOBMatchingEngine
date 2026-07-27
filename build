@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+OPT_LEVEL="${1:-0}"
+clang++-19 -std=c++23 -g -O"${OPT_LEVEL}" main.cpp Order.cpp OrderBook.cpp -o run

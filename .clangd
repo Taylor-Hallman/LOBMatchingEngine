@@ -1,0 +1,4 @@
+    CompileFlags:
+      Compiler: clang++-19
+      #C++23
+      Add: [-std=c++23]
