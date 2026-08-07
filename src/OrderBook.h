@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Order.h"
 #include <deque>
 #include <iostream>
@@ -12,4 +14,5 @@ private:
 public:
     void placeOrder(Order& incoming);
     void processMatch(Order& incoming, Order& resting);
+    size_t size();
 };

@@ -47,3 +47,7 @@ void OrderBook::processMatch(Order& incoming, Order& resting) {
     incoming.LogRemainingQty();
     resting.LogRemainingQty();
 }
+
+size_t OrderBook::size() {
+    return m_bids.size() + m_asks.size();
+}

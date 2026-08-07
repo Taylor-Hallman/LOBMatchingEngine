@@ -1,5 +1,4 @@
-#ifndef ORDER_H
-#define ORDER_H
+#pragma once
 
 #include <cstdint>
 
@@ -18,4 +17,3 @@ struct Order {
 
     void LogRemainingQty();
 };
-#endif
