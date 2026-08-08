@@ -2,7 +2,6 @@
 
 #include "Order.h"
 #include <deque>
-#include <iostream>
 #include <map>
 
 class OrderBook {
@@ -15,4 +14,6 @@ public:
     void placeOrder(Order& incoming);
     void processMatch(Order& incoming, Order& resting);
     size_t size();
+    int64_t getBestBuyPrice();
+    int64_t getBestSellPrice();
 };

@@ -51,3 +51,15 @@ void OrderBook::processMatch(Order& incoming, Order& resting) {
 size_t OrderBook::size() {
     return m_bids.size() + m_asks.size();
 }
+
+int64_t OrderBook::getBestBuyPrice() {
+    if (m_bids.size())
+        return m_bids.begin()->first;
+    return -1;
+}
+
+int64_t OrderBook::getBestSellPrice() {
+    if (m_asks.size())
+        return m_asks.begin()->first;
+    return -1;
+}
