@@ -10,6 +10,8 @@ private:
     std::map<int64_t, std::deque<Order>, std::greater<int64_t>> m_bids; 
     std::map<int64_t, std::deque<Order>> m_asks; 
 
+    uint64_t m_next_sequence{ UINT64_C(0) };
+
 public:
     void placeOrder(Order& incoming);
     void processMatch(Order& incoming, Order& resting);

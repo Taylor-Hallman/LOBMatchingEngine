@@ -8,14 +8,12 @@ TEST(OrderBookTest, PlaceTwoBids) {
         .side = Side::Buy,
         .price = 10000,
         .quantity = 100,
-        .sequence = 0
     };
     Order order2{
         .id = 1,
         .side = Side::Buy,
         .price = 8000,
         .quantity = 100,
-        .sequence = 0
     };
     book.placeOrder(order);
     EXPECT_EQ(book.size(), 1uz);
@@ -31,14 +29,12 @@ TEST(OrderBookTest, PlaceTwoAsks) {
         .side = Side::Sell,
         .price = 10000,
         .quantity = 100,
-        .sequence = 0
     };
     Order order2{
         .id = 1,
         .side = Side::Sell,
         .price = 8000,
         .quantity = 100,
-        .sequence = 0
     };
     book.placeOrder(order);
     EXPECT_EQ(book.size(), 1uz);
@@ -54,14 +50,12 @@ TEST(OrderBookTest, NoMatch) {
         .side = Side::Sell,
         .price = 10000,
         .quantity = 100,
-        .sequence = 0
     };
     Order order2{
         .id = 1,
         .side = Side::Buy,
         .price = 8000,
         .quantity = 100,
-        .sequence = 0
     };
     book.placeOrder(order);
     EXPECT_EQ(book.size(), 1uz);
@@ -78,14 +72,12 @@ TEST(OrderBookTest, Match) {
         .side = Side::Buy,
         .price = 10000,
         .quantity = 100,
-        .sequence = 0
     };
     Order order2{
         .id = 1,
         .side = Side::Sell,
         .price = 8000,
         .quantity = 100,
-        .sequence = 0
     };
     book.placeOrder(order);
     EXPECT_EQ(book.size(), 1uz);
@@ -101,14 +93,12 @@ TEST(OrderBookTest, PartialMatch) {
         .side = Side::Buy,
         .price = 10000,
         .quantity = 100,
-        .sequence = 0
     };
     Order order2{
         .id = 1,
         .side = Side::Sell,
         .price = 8000,
         .quantity = 50,
-        .sequence = 0
     };
     book.placeOrder(order);
     EXPECT_EQ(book.size(), 1uz);
@@ -129,28 +119,24 @@ TEST(OrderBookTest, MatchBestBid) {
         .side = Side::Buy,
         .price = 10000,
         .quantity = 100,
-        .sequence = 0
     };
     Order bid2{
         .id = 1,
         .side = Side::Buy,
         .price = 8000,
         .quantity = 100,
-        .sequence = 0
     };
     Order bid3{
         .id = 2,
         .side = Side::Buy,
         .price = 11000,
         .quantity = 100,
-        .sequence = 0
     };
     Order ask{
         .id = 3,
         .side = Side::Sell,
         .price = 7000,
         .quantity = 100,
-        .sequence = 0
     };
     book.placeOrder(bid);
     book.placeOrder(bid2);
@@ -182,28 +168,24 @@ TEST(OrderBookTest, MatchBestAsk) {
         .side = Side::Sell,
         .price = 10000,
         .quantity = 100,
-        .sequence = 0
     };
     Order ask2{
         .id = 1,
         .side = Side::Sell,
         .price = 8000,
         .quantity = 100,
-        .sequence = 0
     };
     Order ask3{
         .id = 2,
         .side = Side::Sell,
         .price = 11000,
         .quantity = 100,
-        .sequence = 0
     };
     Order bid{
         .id = 3,
         .side = Side::Buy,
         .price = 12000,
         .quantity = 100,
-        .sequence = 0
     };
     book.placeOrder(ask);
     book.placeOrder(ask2);
@@ -235,28 +217,24 @@ TEST(OrderBookTest, MatchMultipleBids) {
         .side = Side::Buy,
         .price = 10000,
         .quantity = 100,
-        .sequence = 0
     };
     Order bid2{
         .id = 1,
         .side = Side::Buy,
         .price = 8000,
         .quantity = 100,
-        .sequence = 0
     };
     Order bid3{
         .id = 2,
         .side = Side::Buy,
         .price = 11000,
         .quantity = 100,
-        .sequence = 0
     };
     Order ask{
         .id = 3,
         .side = Side::Sell,
         .price = 7000,
         .quantity = 200,
-        .sequence = 0
     };
     book.placeOrder(bid);
     book.placeOrder(bid2);
@@ -286,28 +264,24 @@ TEST(OrderBookTest, MatchMultipleAsks) {
         .side = Side::Sell,
         .price = 10000,
         .quantity = 100,
-        .sequence = 0
     };
     Order ask2{
         .id = 1,
         .side = Side::Sell,
         .price = 8000,
         .quantity = 100,
-        .sequence = 0
     };
     Order ask3{
         .id = 2,
         .side = Side::Sell,
         .price = 11000,
         .quantity = 100,
-        .sequence = 0
     };
     Order bid{
         .id = 3,
         .side = Side::Buy,
         .price = 12000,
         .quantity = 200,
-        .sequence = 0
     };
     book.placeOrder(ask);
     book.placeOrder(ask2);
@@ -337,28 +311,24 @@ TEST(OrderBookTest, PrioritizeOldest) {
         .side = Side::Buy,
         .price = 10000,
         .quantity = 100,
-        .sequence = 0
     };
     Order bidNewer{
         .id = 1,
         .side = Side::Buy,
         .price = 10000,
         .quantity = 100,
-        .sequence = 0
     };
     Order askOlder{
         .id = 2,
         .side = Side::Sell,
         .price = 12000,
         .quantity = 100,
-        .sequence = 0
     };
     Order askNewer{
         .id = 3,
         .side = Side::Sell,
         .price = 12000,
         .quantity = 100,
-        .sequence = 0
     };
     book.placeOrder(bidOlder);
     book.placeOrder(bidNewer);
@@ -371,14 +341,12 @@ TEST(OrderBookTest, PrioritizeOldest) {
         .side = Side::Sell,
         .price = 10000,
         .quantity = 100,
-        .sequence = 0
     };
     Order incomingBid{
         .id = 4,
         .side = Side::Buy,
         .price = 12000,
         .quantity = 100,
-        .sequence = 0
     };
 
     book.placeOrder(incomingAsk);

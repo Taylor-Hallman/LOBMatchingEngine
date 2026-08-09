@@ -3,6 +3,7 @@
 #include <print>
 
 void OrderBook::placeOrder(Order& incoming) {
+    incoming.sequence = m_next_sequence++;
     switch (incoming.side) {
     case Side::Buy:
         while (m_asks.size() && m_asks.begin()->first <= incoming.price) {
