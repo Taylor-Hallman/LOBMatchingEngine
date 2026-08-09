@@ -16,4 +16,7 @@ public:
     size_t size();
     int64_t getBestBuyPrice();
     int64_t getBestSellPrice();
+
+    std::deque<Order> getBidsAtPrice(int64_t price);
+    std::deque<Order> getAsksAtPrice(int64_t price);
 };

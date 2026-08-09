@@ -5,3 +5,8 @@ Build/
 .cache/
 .clangd
 src/main.cpp
+.vscode/
+make
+Debug/
+test
+Testing/

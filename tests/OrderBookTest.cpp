@@ -91,7 +91,6 @@ TEST(OrderBookTest, Match) {
     EXPECT_EQ(book.size(), 1uz);
     book.placeOrder(order2);
     EXPECT_EQ(book.size(), 0uz);
-    EXPECT_EQ(order.remaining_qty, 0);
     EXPECT_EQ(order2.remaining_qty, 0);
 }
 
@@ -115,7 +114,11 @@ TEST(OrderBookTest, PartialMatch) {
     EXPECT_EQ(book.size(), 1uz);
     book.placeOrder(order2);
     EXPECT_EQ(book.size(), 1uz);
-    EXPECT_EQ(order.remaining_qty, 50);
+
+    auto bids{ book.getBidsAtPrice(order.price) };
+    ASSERT_FALSE(bids.empty());
+    EXPECT_EQ(bids.size(), 1uz);
+    EXPECT_EQ(bids.front().remaining_qty, 50);
     EXPECT_EQ(order2.remaining_qty, 0);
 }
 
@@ -158,9 +161,17 @@ TEST(OrderBookTest, MatchBestBid) {
     book.placeOrder(ask);
     EXPECT_EQ(book.size(), 2uz);
 
-    EXPECT_EQ(bid.remaining_qty, bid.quantity);
-    EXPECT_EQ(bid2.remaining_qty, bid2.quantity);
-    EXPECT_EQ(bid3.remaining_qty, 0);
+    auto bidsLow{ book.getBidsAtPrice(8000) }, 
+         bidsMid{ book.getBidsAtPrice(10000) },
+         bidsHigh{ book.getBidsAtPrice(11000) };
+
+    ASSERT_FALSE(bidsLow.empty() || bidsMid.empty());
+    EXPECT_EQ(bidsLow.size(), 1uz);
+    EXPECT_EQ(bidsMid.size(), 1uz);
+    EXPECT_TRUE(bidsHigh.empty());
+
+    EXPECT_EQ(bidsLow.front().remaining_qty, bidsLow.front().quantity);
+    EXPECT_EQ(bidsMid.front().remaining_qty, bidsMid.front().quantity);
     EXPECT_EQ(ask.remaining_qty, 0);
 }
 
@@ -200,12 +211,20 @@ TEST(OrderBookTest, MatchBestAsk) {
     EXPECT_EQ(book.size(), 3uz);
     EXPECT_EQ(book.getBestSellPrice(), 8000);
 
-    book.placeOrder(ask);
+    book.placeOrder(bid);
     EXPECT_EQ(book.size(), 2uz);
 
-    EXPECT_EQ(ask.remaining_qty, ask.quantity);
-    EXPECT_EQ(ask2.remaining_qty, 0);
-    EXPECT_EQ(ask3.remaining_qty, ask3.quantity);
+    auto asksLow{ book.getAsksAtPrice(8000) }, 
+         asksMid{ book.getAsksAtPrice(10000) },
+         asksHigh{ book.getAsksAtPrice(11000) };
+
+    ASSERT_FALSE(asksMid.empty() || asksHigh.empty());
+    EXPECT_TRUE(asksLow.empty());
+    EXPECT_EQ(asksMid.size(), 1uz);
+    EXPECT_EQ(asksHigh.size(), 1uz);
+
+    EXPECT_EQ(asksMid.front().remaining_qty, asksMid.front().quantity);
+    EXPECT_EQ(asksHigh.front().remaining_qty, asksHigh.front().quantity);
     EXPECT_EQ(bid.remaining_qty, 0);
 }
 
@@ -248,9 +267,15 @@ TEST(OrderBookTest, MatchMultipleBids) {
     book.placeOrder(ask);
     EXPECT_EQ(book.size(), 1uz);
 
-    EXPECT_EQ(bid.remaining_qty, 0);
-    EXPECT_EQ(bid2.remaining_qty, bid2.quantity);
-    EXPECT_EQ(bid3.remaining_qty, 0);
+    auto bidsLow{ book.getBidsAtPrice(8000) },
+         bidsMid{ book.getBidsAtPrice(10000) },
+         bidsHigh{ book.getBidsAtPrice(11000) };
+
+    ASSERT_FALSE(bidsLow.empty());
+    EXPECT_TRUE(bidsMid.empty() && bidsHigh.empty());
+    EXPECT_EQ(bidsLow.size(), 1uz);
+
+    EXPECT_EQ(bidsLow.front().remaining_qty, bidsLow.front().quantity);
     EXPECT_EQ(ask.remaining_qty, 0);
 }
 
@@ -290,12 +315,18 @@ TEST(OrderBookTest, MatchMultipleAsks) {
     EXPECT_EQ(book.size(), 3uz);
     EXPECT_EQ(book.getBestSellPrice(), 8000);
 
-    book.placeOrder(ask);
+    book.placeOrder(bid);
     EXPECT_EQ(book.size(), 1uz);
 
-    EXPECT_EQ(ask.remaining_qty, 0);
-    EXPECT_EQ(ask2.remaining_qty, 0);
-    EXPECT_EQ(ask3.remaining_qty, ask3.quantity);
+    auto asksLow{ book.getAsksAtPrice(8000) },
+         asksMid{ book.getAsksAtPrice(10000) },
+         asksHigh{ book.getAsksAtPrice(11000) };
+
+    ASSERT_FALSE(asksHigh.empty());
+    EXPECT_TRUE(asksLow.empty() && asksMid.empty());
+    EXPECT_EQ(asksHigh.size(), 1uz);
+
+    EXPECT_EQ(asksHigh.front().remaining_qty, asksHigh.front().quantity);
     EXPECT_EQ(bid.remaining_qty, 0);
 }
 
@@ -353,12 +384,16 @@ TEST(OrderBookTest, PrioritizeOldest) {
     book.placeOrder(incomingAsk);
     EXPECT_EQ(book.size(), 3uz);
     EXPECT_EQ(incomingAsk.remaining_qty, 0);
-    EXPECT_EQ(bidOlder.remaining_qty, 0);
-    EXPECT_EQ(bidNewer.remaining_qty, bidNewer.quantity);
+    auto bids{ book.getBidsAtPrice(10000) };
+    ASSERT_FALSE(bids.empty());
+    EXPECT_EQ(bids.size(), 1uz);
+    EXPECT_EQ(bids.front().id, bidNewer.id);
 
     book.placeOrder(incomingBid);
     EXPECT_EQ(book.size(), 2uz);
     EXPECT_EQ(incomingBid.remaining_qty, 0);
-    EXPECT_EQ(askOlder.remaining_qty, 0);
-    EXPECT_EQ(askNewer.remaining_qty, askNewer.quantity);
+    auto asks{ book.getAsksAtPrice(12000) };
+    ASSERT_FALSE(asks.empty());
+    EXPECT_EQ(asks.size(), 1uz);
+    EXPECT_EQ(asks.front().id, askNewer.id);
 }

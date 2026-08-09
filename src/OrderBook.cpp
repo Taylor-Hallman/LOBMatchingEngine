@@ -16,7 +16,7 @@ void OrderBook::placeOrder(Order& incoming) {
             if (!incoming.remaining_qty)
                 return; // order was fulfilled immediately so will not be placed in the queue
         }
-        m_bids[incoming.price].push_back(incoming);
+        m_bids[incoming.price].push_back(std::move(incoming));
         break;
     case Side::Sell:
         while (m_bids.size() && m_bids.begin()->first >= incoming.price) {
@@ -30,14 +30,15 @@ void OrderBook::placeOrder(Order& incoming) {
             if (!incoming.remaining_qty)
                 return;
         }
-        m_asks[incoming.price].push_back(incoming);
+        m_asks[incoming.price].push_back(std::move(incoming));
     }
 }
 
 void OrderBook::processMatch(Order& incoming, Order& resting) {
     auto amt{ std::min(incoming.remaining_qty, resting.remaining_qty) };
+    auto temp{ incoming.remaining_qty };
     incoming.remaining_qty = std::max(INT64_C(0), incoming.remaining_qty - resting.remaining_qty);
-    resting.remaining_qty = std::max(INT64_C(0), resting.remaining_qty - incoming.remaining_qty);
+    resting.remaining_qty = std::max(INT64_C(0), resting.remaining_qty - temp);
     std::println("Matched order {0} with order {1}. Traded {2} options for ${3:.2f}", 
             incoming.id,
             resting.id,
@@ -49,7 +50,12 @@ void OrderBook::processMatch(Order& incoming, Order& resting) {
 }
 
 size_t OrderBook::size() {
-    return m_bids.size() + m_asks.size();
+    auto bidsSize{ 0uz }, asksSize{ 0uz };
+    for (auto& [price, bidsDeque] : m_bids)
+        bidsSize += bidsDeque.size();
+    for (auto& [price, asksDeque] : m_asks)
+        asksSize += asksDeque.size();
+    return bidsSize + asksSize;
 }
 
 int64_t OrderBook::getBestBuyPrice() {
@@ -62,4 +68,16 @@ int64_t OrderBook::getBestSellPrice() {
     if (m_asks.size())
         return m_asks.begin()->first;
     return -1;
+}
+
+std::deque<Order> OrderBook::getBidsAtPrice(int64_t price) {
+    if (!m_bids.contains(price))
+        return {};
+    return m_bids.at(price);
+}
+
+std::deque<Order> OrderBook::getAsksAtPrice(int64_t price) {
+    if (!m_asks.contains(price))
+        return {};
+    return m_asks.at(price);
 }
