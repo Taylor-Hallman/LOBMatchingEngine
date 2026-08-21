@@ -281,6 +281,23 @@ TEST(OrderBookTest, MatchMultipleAsks) {
     EXPECT_EQ(bid.remaining_qty, 0);
 }
 
+TEST(OrderBookTest, NewerHasHigherSequence) {
+    OrderBook book;
+    Order bid{
+        .side = Side::Buy,
+        .price = 10000,
+        .quantity = 100
+    };
+    
+    book.placeOrder(bid);
+    book.placeOrder(bid);
+
+    auto bids{ book.getBidsAtPrice(10000) }; 
+    ASSERT_EQ(bids.size(), 2uz);
+
+    EXPECT_GT(bids[1].sequence, bids[0].sequence);
+}
+
 TEST(OrderBookTest, PrioritizeOldest) {
     OrderBook book;
     Order bidOlder{
@@ -335,4 +352,84 @@ TEST(OrderBookTest, PrioritizeOldest) {
     ASSERT_FALSE(asks.empty());
     EXPECT_EQ(asks.size(), 1uz);
     EXPECT_EQ(asks.front().id, askNewer.id);
+}
+
+TEST(OrderBookTest, ExhaustAllAsks) {
+    OrderBook book;
+
+    Order ask1{
+        .side = Side::Sell,
+        .price = 12000,
+        .quantity = 100
+    };
+    Order ask2{
+        .side = Side::Sell,
+        .price = 10000,
+        .quantity = 100
+    };
+    Order ask3{
+        .side = Side::Sell,
+        .price = 8000,
+        .quantity = 100
+    };
+
+    Order bigBid{
+        .side = Side::Buy,
+        .price = 12000,
+        .quantity = 500
+    };
+
+    book.placeOrder(ask1);
+    book.placeOrder(ask2);
+    book.placeOrder(ask3);
+    EXPECT_EQ(book.size(), 3uz);
+
+    book.placeOrder(bigBid);
+    EXPECT_EQ(book.size(), 1uz);
+
+    auto bids{ book.getBidsAtPrice(12000) };
+    ASSERT_FALSE(bids.empty());
+    EXPECT_EQ(bids.size(), 1uz);
+    EXPECT_EQ(bids.front().id, bigBid.id);
+    EXPECT_EQ(bids.front().remaining_qty, 200);
+}
+
+TEST(OrderBookTest, ExhaustAllBids) {
+    OrderBook book;
+
+    Order bid1{
+        .side = Side::Buy,
+        .price = 12000,
+        .quantity = 100
+    };
+    Order bid2{
+        .side = Side::Buy,
+        .price = 10000,
+        .quantity = 100
+    };
+    Order bid3{
+        .side = Side::Buy,
+        .price = 8000,
+        .quantity = 100
+    };
+
+    Order bigAsk{
+        .side = Side::Sell,
+        .price = 8000,
+        .quantity = 500
+    };
+
+    book.placeOrder(bid1);
+    book.placeOrder(bid2);
+    book.placeOrder(bid3);
+    EXPECT_EQ(book.size(), 3uz);
+
+    book.placeOrder(bigAsk);
+    EXPECT_EQ(book.size(), 1uz);
+
+    auto asks{ book.getAsksAtPrice(8000) };
+    ASSERT_FALSE(asks.empty());
+    EXPECT_EQ(asks.size(), 1uz);
+    EXPECT_EQ(asks.front().id, bigAsk.id);
+    EXPECT_EQ(asks.front().remaining_qty, 200);
 }

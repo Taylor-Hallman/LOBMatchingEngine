@@ -2,6 +2,8 @@
 #include "Order.h"
 #include <print>
 
+std::atomic<uint64_t> Order::s_next_id{ 0 };
+
 void OrderBook::placeOrder(Order& incoming) {
     incoming.sequence = m_next_sequence++;
     switch (incoming.side) {
