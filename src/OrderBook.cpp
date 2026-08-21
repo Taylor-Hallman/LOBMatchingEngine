@@ -1,5 +1,6 @@
 #include "OrderBook.h"
 #include "Order.h"
+#include <cstdint>
 #include <print>
 
 std::atomic<uint64_t> Order::s_next_id{ 0 };
@@ -42,11 +43,12 @@ void OrderBook::processMatch(Order& incoming, Order& resting) {
     auto temp{ incoming.remaining_qty };
     incoming.remaining_qty = std::max(INT64_C(0), incoming.remaining_qty - resting.remaining_qty);
     resting.remaining_qty = std::max(INT64_C(0), resting.remaining_qty - temp);
-    std::println("Matched order {0} with order {1}. Traded {2} options for ${3:.2f}", 
+    std::println("Matched order {0} with order {1}. Traded {2} options for ${3}.{4}", 
             incoming.id,
             resting.id,
             amt,
-            amt * resting.price * 0.01f
+            (amt * resting.price) / INT64_C(100),
+            (amt * resting.price) % INT64_C(100)
         );
     incoming.LogRemainingQty();
     resting.LogRemainingQty();

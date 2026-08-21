@@ -8,6 +8,11 @@ add_library(orderbook_lib
     src/OrderBook.cpp
     src/Order.cpp
 )
+
+add_executable(orderbook_app src/main.cpp)
+
+target_link_libraries(orderbook_app PRIVATE orderbook_lib)
+
 target_include_directories(orderbook_lib PUBLIC src)
 
 include(FetchContent)

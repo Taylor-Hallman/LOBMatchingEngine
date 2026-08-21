@@ -16,10 +16,9 @@ Order GenerateOrder(Side side) {
     int64_t price{ randomNum(5000, 15000) };
     uint64_t quantity{ static_cast<uint64_t>(randomNum(1, 100)) };
     Order order{
-        .id = id++,
         .side = side,
+        .price = price,
         .quantity = quantity,
-        .sequence = UINT64_C(0) // unused for now
     };
     
     std::string sideTxt = side == Side::Buy ? "Buy" : "Sell";

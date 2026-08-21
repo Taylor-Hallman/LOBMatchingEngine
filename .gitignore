@@ -4,7 +4,6 @@ compile_commands.json
 Build/
 .cache/
 .clangd
-src/main.cpp
 .vscode/
 make
 Debug/
