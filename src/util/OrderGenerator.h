@@ -1,9 +1,10 @@
+#pragma once
+
 #include "../Order.h"
-#include "../OrderBook.h"
 #include <random>
 #include <print>
 
-int64_t randomNum(int64_t min, int64_t max) {
+inline int64_t randomNum(int64_t min, int64_t max) {
     std::random_device dev;
     std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> dist(min, max);
@@ -11,10 +12,10 @@ int64_t randomNum(int64_t min, int64_t max) {
     return dist(rng);
 }
 
-Order GenerateOrder(Side side) {
+inline Order GenerateOrder(Side side, int64_t priceFloor = 5000, int64_t priceCeiling = 15000, uint64_t quantityFloor = 1, uint64_t quantityCeiling = 100) {
     static uint64_t id{ UINT64_C(0) };
-    int64_t price{ randomNum(5000, 15000) };
-    uint64_t quantity{ static_cast<uint64_t>(randomNum(1, 100)) };
+    int64_t price{ randomNum(priceFloor, priceCeiling) };
+    uint64_t quantity{ static_cast<uint64_t>(randomNum(quantityFloor, quantityCeiling)) };
     Order order{
         .side = side,
         .price = price,
@@ -32,4 +33,9 @@ Order GenerateOrder(Side side) {
     );
     
     return order;
+}
+
+inline Order GenerateOrder(int64_t priceFloor = 5000, int64_t priceCeiling = 15000, uint64_t quantityFloor = 1, uint64_t quantityCeiling = 100) {
+    Side side{ static_cast<Side>(randomNum(0, 1)) };
+    return GenerateOrder(side, priceFloor, priceCeiling, quantityFloor, quantityCeiling);
 }

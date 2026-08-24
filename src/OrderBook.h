@@ -15,6 +15,7 @@ private:
 public:
     void placeOrder(Order& incoming);
     void processMatch(Order& incoming, Order& resting);
+    bool cancelOrder(uint64_t id);
     size_t size();
     int64_t getBestBuyPrice();
     int64_t getBestSellPrice();

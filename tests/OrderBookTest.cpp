@@ -1,5 +1,7 @@
+#include <array>
 #include <gtest/gtest.h>
 #include "OrderBook.h"
+#include "util/OrderGenerator.h"
 
 TEST(OrderBookTest, PlaceTwoBids) {
     OrderBook book;
@@ -432,4 +434,50 @@ TEST(OrderBookTest, ExhaustAllBids) {
     EXPECT_EQ(asks.size(), 1uz);
     EXPECT_EQ(asks.front().id, bigAsk.id);
     EXPECT_EQ(asks.front().remaining_qty, 200);
+}
+
+TEST(OrderBookTest, PlaceAndCancel) {
+    OrderBook book;
+
+    Order order{ GenerateOrder() };
+    auto id{ order.id };
+    
+    book.placeOrder(order);
+    EXPECT_EQ(book.size(), 1uz);
+
+    bool cancelled{ book.cancelOrder(id) };
+    EXPECT_TRUE(cancelled);
+    EXPECT_EQ(book.size(), 0uz);
+}
+
+TEST(OrderBookTest, PlaceManyCancelOne) {
+    OrderBook book;
+    uint64_t id{};
+    for (int i{}; i < 10; ++i) {
+        Order order{ GenerateOrder(Side::Buy) };
+        book.placeOrder(order);
+        if (i == 5)
+            id = order.id;
+    }
+    EXPECT_EQ(book.size(), 10uz);
+
+    bool cancelled{ book.cancelOrder(id) };
+    EXPECT_TRUE(cancelled);
+    EXPECT_EQ(book.size(), 9uz);
+}
+
+TEST(OrderBookTest, CancelNonexistent) {
+    OrderBook book;
+    std::array<uint64_t, 10> ids;
+    for (int i{}; i < 10; ++i) {
+        Order order{ GenerateOrder(Side::Buy) };
+        book.placeOrder(order);
+        ids[i] = order.id;
+    }
+    EXPECT_EQ(book.size(), 10uz);
+
+    auto cancelId{ (*std::max_element(ids.begin(), ids.end())) + 1};
+    bool cancelled{ book.cancelOrder(cancelId) };
+    EXPECT_FALSE(cancelled);
+    EXPECT_EQ(book.size(), 10uz);
 }

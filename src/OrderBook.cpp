@@ -54,6 +54,27 @@ void OrderBook::processMatch(Order& incoming, Order& resting) {
     resting.LogRemainingQty();
 }
 
+// Slow!
+bool OrderBook::cancelOrder(uint64_t id) {
+    for (auto& [price, bidsDeque] : m_bids) {
+        for (auto itr{ bidsDeque.begin() }; itr != bidsDeque.end(); ++itr) {
+            if (id == itr->id) {
+                bidsDeque.erase(itr);
+                return true;
+            }
+        }
+    }
+    for (auto& [price, asksDeque] : m_asks) {
+        for (auto itr{ asksDeque.begin() }; itr != asksDeque.end(); ++itr) {
+            if (id == itr->id) {
+                asksDeque.erase(itr);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 size_t OrderBook::size() {
     auto bidsSize{ 0uz }, asksSize{ 0uz };
     for (auto& [price, bidsDeque] : m_bids)
