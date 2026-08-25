@@ -3,6 +3,13 @@
 #include "OrderBook.h"
 #include "util/OrderGenerator.h"
 
+TEST(OrderBookTest, EmptyBookQuery) {
+    OrderBook book;
+    EXPECT_EQ(book.size(), 0uz);
+    EXPECT_EQ(book.getBestBuyPrice(), -1);
+    EXPECT_EQ(book.getBestSellPrice(), -1);
+}
+
 TEST(OrderBookTest, PlaceTwoBids) {
     OrderBook book;
     Order order{
@@ -41,16 +48,16 @@ TEST(OrderBookTest, PlaceTwoAsks) {
     EXPECT_EQ(book.getBestSellPrice(), 8000);
 }
 
-TEST(OrderBookTest, NoMatch) {
+TEST(OrderBookTest, NearMatchRestingBid) {
     OrderBook book;
     Order order{
-        .side = Side::Sell,
-        .price = 10000,
+        .side = Side::Buy,
+        .price = 9999,
         .quantity = 100,
     };
     Order order2{
         .side = Side::Buy,
-        .price = 8000,
+        .price = 10000,
         .quantity = 100,
     };
     book.placeOrder(order);
@@ -61,7 +68,27 @@ TEST(OrderBookTest, NoMatch) {
     EXPECT_EQ(order2.remaining_qty, order2.quantity);
 }
 
-TEST(OrderBookTest, Match) {
+TEST(OrderBookTest, NearMatchRestingAsk) {
+    OrderBook book;
+    Order order{
+        .side = Side::Sell,
+        .price = 10000,
+        .quantity = 100,
+    };
+    Order order2{
+        .side = Side::Buy,
+        .price = 9999,
+        .quantity = 100,
+    };
+    book.placeOrder(order);
+    EXPECT_EQ(book.size(), 1uz);
+    book.placeOrder(order2);
+    EXPECT_EQ(book.size(), 2uz);
+    EXPECT_EQ(order.remaining_qty, order.quantity);
+    EXPECT_EQ(order2.remaining_qty, order2.quantity);
+}
+
+TEST(OrderBookTest, MatchRestingBid) {
     OrderBook book;
     Order order{
         .side = Side::Buy,
@@ -80,7 +107,64 @@ TEST(OrderBookTest, Match) {
     EXPECT_EQ(order2.remaining_qty, 0);
 }
 
-TEST(OrderBookTest, PartialMatch) {
+TEST(OrderBookTest, MatchRestingAsk) {
+    OrderBook book;
+    Order order{
+        .side = Side::Sell,
+        .price = 8000,
+        .quantity = 100,
+    };
+    Order order2{
+        .side = Side::Buy,
+        .price = 10000,
+        .quantity = 100,
+    };
+    book.placeOrder(order);
+    EXPECT_EQ(book.size(), 1uz);
+    book.placeOrder(order2);
+    EXPECT_EQ(book.size(), 0uz);
+    EXPECT_EQ(order2.remaining_qty, 0);
+}
+
+TEST(OrderBookTest, ExactMatchRestingBid) {
+    OrderBook book;
+    Order order{
+        .side = Side::Buy,
+        .price = 10000,
+        .quantity = 100,
+    };
+    Order order2{
+        .side = Side::Sell,
+        .price = 10000,
+        .quantity = 100,
+    };
+    book.placeOrder(order);
+    EXPECT_EQ(book.size(), 1uz);
+    book.placeOrder(order2);
+    EXPECT_EQ(book.size(), 0uz);
+    EXPECT_EQ(order2.remaining_qty, 0);
+}
+
+TEST(OrderBookTest, ExactMatchRestingAsk) {
+    OrderBook book;
+    Order order{
+        .side = Side::Sell,
+        .price = 10000,
+        .quantity = 100,
+    };
+    Order order2{
+        .side = Side::Buy,
+        .price = 10000,
+        .quantity = 100,
+    };
+    book.placeOrder(order);
+    EXPECT_EQ(book.size(), 1uz);
+    book.placeOrder(order2);
+    EXPECT_EQ(book.size(), 0uz);
+    EXPECT_EQ(order2.remaining_qty, 0);
+}
+
+TEST(OrderBookTest, PartialMatchRestingBid) {
     OrderBook book;
     Order order{
         .side = Side::Buy,
@@ -101,6 +185,30 @@ TEST(OrderBookTest, PartialMatch) {
     ASSERT_FALSE(bids.empty());
     EXPECT_EQ(bids.size(), 1uz);
     EXPECT_EQ(bids.front().remaining_qty, 50);
+    EXPECT_EQ(order2.remaining_qty, 0);
+}
+
+TEST(OrderBookTest, PartialMatchRestingAsk) {
+    OrderBook book;
+    Order order{
+        .side = Side::Sell,
+        .price = 8000,
+        .quantity = 100,
+    };
+    Order order2{
+        .side = Side::Buy,
+        .price = 10000,
+        .quantity = 50,
+    };
+    book.placeOrder(order);
+    EXPECT_EQ(book.size(), 1uz);
+    book.placeOrder(order2);
+    EXPECT_EQ(book.size(), 1uz);
+
+    auto asks{ book.getAsksAtPrice(order.price) };
+    ASSERT_FALSE(asks.empty());
+    EXPECT_EQ(asks.size(), 1uz);
+    EXPECT_EQ(asks.front().remaining_qty, 50);
     EXPECT_EQ(order2.remaining_qty, 0);
 }
 
@@ -162,7 +270,6 @@ TEST(OrderBookTest, MatchBestAsk) {
         .quantity = 100,
     };
     Order ask3{
-        .id = 2,
         .side = Side::Sell,
         .price = 11000,
         .quantity = 100,
@@ -480,4 +587,246 @@ TEST(OrderBookTest, CancelNonexistent) {
     bool cancelled{ book.cancelOrder(cancelId) };
     EXPECT_FALSE(cancelled);
     EXPECT_EQ(book.size(), 10uz);
+}
+
+TEST(OrderBookTest, DoubleCancel) {
+    OrderBook book;
+    uint64_t id{};
+    for (int i{}; i < 10; ++i) {
+        Order order{ GenerateOrder(Side::Buy) };
+        book.placeOrder(order);
+        if (i == 5)
+            id = order.id;
+    }
+    EXPECT_EQ(book.size(), 10uz);
+
+    bool cancelled{ book.cancelOrder(id) };
+    EXPECT_TRUE(cancelled);
+    EXPECT_EQ(book.size(), 9uz);
+
+    bool cancelledAgain{ book.cancelOrder(id) };
+    EXPECT_FALSE(cancelledAgain);
+    EXPECT_EQ(book.size(), 9uz);
+}
+
+TEST(OrderBookTest, CancelLastBidAtPrice) {
+    OrderBook book;
+    Order order{
+        .side = Side::Buy,
+        .price = 8000,
+        .quantity = 100
+    };
+    Order order2{
+        .side = Side::Buy,
+        .price = 10000,
+        .quantity = 100
+    };
+    book.placeOrder(order);
+    book.placeOrder(order2);
+    EXPECT_EQ(book.size(), 2uz);
+
+    auto best{ book.getBestBuyPrice() };
+    EXPECT_EQ(best, 10000);
+
+    bool cancelled{ book.cancelOrder(order2.id) };
+    EXPECT_TRUE(cancelled);
+    EXPECT_EQ(book.size(), 1uz);
+
+    auto newBest{ book.getBestBuyPrice() };
+    EXPECT_EQ(newBest, 8000);
+}
+
+TEST(OrderBookTest, CancelLastAskAtPrice) {
+    OrderBook book;
+    Order order{
+        .side = Side::Sell,
+        .price = 8000,
+        .quantity = 100
+    };
+    Order order2{
+        .side = Side::Sell,
+        .price = 10000,
+        .quantity = 100
+    };
+    book.placeOrder(order);
+    book.placeOrder(order2);
+    EXPECT_EQ(book.size(), 2uz);
+
+    auto best{ book.getBestSellPrice() };
+    EXPECT_EQ(best, 8000);
+
+    bool cancelled{ book.cancelOrder(order.id) };
+    EXPECT_TRUE(cancelled);
+    EXPECT_EQ(book.size(), 1uz);
+
+    auto newBest{ book.getBestSellPrice() };
+    EXPECT_EQ(newBest, 10000);
+}
+
+TEST(OrderBookTest, CancelOneBidAtPrice) {
+    OrderBook book;
+    Order order{
+        .side = Side::Buy,
+        .price = 10000,
+        .quantity = 100
+    };
+    Order order2{
+        .side = Side::Buy,
+        .price = 10000,
+        .quantity = 100
+    };
+    Order order3{
+        .side = Side::Buy,
+        .price = 8000,
+        .quantity = 100
+    };
+    book.placeOrder(order);
+    book.placeOrder(order2);
+    book.placeOrder(order3);
+    EXPECT_EQ(book.size(), 3uz);
+
+    auto best{ book.getBestBuyPrice() };
+    EXPECT_EQ(best, 10000);
+
+    bool cancelled{ book.cancelOrder(order.id) };
+    EXPECT_TRUE(cancelled);
+    EXPECT_EQ(book.size(), 2uz);
+
+    auto newBest{ book.getBestBuyPrice() };
+    EXPECT_EQ(newBest, 10000);
+}
+
+TEST(OrderBookTest, CancelOneAskAtPrice) {
+    OrderBook book;
+    Order order{
+        .side = Side::Sell,
+        .price = 8000,
+        .quantity = 100
+    };
+    Order order2{
+        .side = Side::Sell,
+        .price = 10000,
+        .quantity = 100
+    };
+    Order order3{
+        .side = Side::Sell,
+        .price = 8000,
+        .quantity = 100
+    };
+    book.placeOrder(order);
+    book.placeOrder(order2);
+    book.placeOrder(order3);
+    EXPECT_EQ(book.size(), 3uz);
+
+    auto best{ book.getBestSellPrice() };
+    EXPECT_EQ(best, 8000);
+
+    bool cancelled{ book.cancelOrder(order.id) };
+    EXPECT_TRUE(cancelled);
+    EXPECT_EQ(book.size(), 2uz);
+
+    auto newBest{ book.getBestSellPrice() };
+    EXPECT_EQ(newBest, 8000);
+}
+
+TEST(OrderBookTest, CancelMiddleBidAtPrice) {
+    OrderBook book;
+    Order order{
+        .side = Side::Buy,
+        .price = 10000,
+        .quantity = 100
+    };
+    Order order2{
+        .side = Side::Buy,
+        .price = 10000,
+        .quantity = 100
+    };
+    Order order3{
+        .side = Side::Buy,
+        .price = 10000,
+        .quantity = 100
+    };
+    book.placeOrder(order);
+    book.placeOrder(order2);
+    book.placeOrder(order3);
+    EXPECT_EQ(book.size(), 3uz);
+
+    bool cancelled{ book.cancelOrder(order2.id) };
+    EXPECT_TRUE(cancelled);
+    EXPECT_EQ(book.size(), 2uz);
+
+    auto bids{ book.getBidsAtPrice(10000) };
+    ASSERT_FALSE(bids.empty());
+    EXPECT_EQ(bids.size(), 2uz);
+    EXPECT_EQ(bids.front().id, order.id);
+}
+
+TEST(OrderBookTest, CancelMiddleAskAtPrice) {
+    OrderBook book;
+    Order order{
+        .side = Side::Sell,
+        .price = 10000,
+        .quantity = 100
+    };
+    Order order2{
+        .side = Side::Sell,
+        .price = 10000,
+        .quantity = 100
+    };
+    Order order3{
+        .side = Side::Sell,
+        .price = 10000,
+        .quantity = 100
+    };
+    book.placeOrder(order);
+    book.placeOrder(order2);
+    book.placeOrder(order3);
+    EXPECT_EQ(book.size(), 3uz);
+
+    bool cancelled{ book.cancelOrder(order2.id) };
+    EXPECT_TRUE(cancelled);
+    EXPECT_EQ(book.size(), 2uz);
+
+    auto asks{ book.getAsksAtPrice(10000) };
+    ASSERT_FALSE(asks.empty());
+    EXPECT_EQ(asks.size(), 2uz);
+    EXPECT_EQ(asks.front().id, order.id);
+}
+
+TEST(OrderBookTest, AttemptMatchRestingBidAfterCancel) {
+    OrderBook book;
+    Order bid{
+        .side = Side::Buy,
+        .price = 10000,
+        .quantity = 100
+    };
+    Order ask{
+        .side = Side::Sell,
+        .price = 8000,
+        .quantity = 100
+    };
+    book.placeOrder(bid);
+    book.cancelOrder(bid.id);
+    book.placeOrder(ask);
+    EXPECT_EQ(book.size(), 1uz);
+    EXPECT_EQ(book.getBestSellPrice(), 8000);
+}
+
+TEST(OrderBookTest, AttemptMatchRestingAskAfterCancel) {
+    OrderBook book;
+    Order bid{
+        .side = Side::Buy,
+        .price = 10000,
+        .quantity = 100
+    };
+    Order ask{
+        .side = Side::Sell,
+        .price = 8000,
+        .quantity = 100
+    };
+    book.placeOrder(ask);
+    book.cancelOrder(ask.id);
+    book.placeOrder(bid);
+    EXPECT_EQ(book.size(), 1uz);
+    EXPECT_EQ(book.getBestBuyPrice(), 10000);
 }

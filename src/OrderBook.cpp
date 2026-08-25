@@ -60,6 +60,8 @@ bool OrderBook::cancelOrder(uint64_t id) {
         for (auto itr{ bidsDeque.begin() }; itr != bidsDeque.end(); ++itr) {
             if (id == itr->id) {
                 bidsDeque.erase(itr);
+                if (bidsDeque.empty())
+                    m_bids.erase(price);
                 return true;
             }
         }
@@ -68,6 +70,8 @@ bool OrderBook::cancelOrder(uint64_t id) {
         for (auto itr{ asksDeque.begin() }; itr != asksDeque.end(); ++itr) {
             if (id == itr->id) {
                 asksDeque.erase(itr);
+                if (asksDeque.empty())
+                    m_asks.erase(price);
                 return true;
             }
         }
