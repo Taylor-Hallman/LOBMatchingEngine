@@ -21,6 +21,15 @@ FetchContent_Declare(
     URL https://github.com/google/googletest/archive/refs/tags/v1.15.2.zip 
 )
 FetchContent_MakeAvailable(googletest)
+FetchContent_Declare(
+    googlebenchmark
+    URL https://github.com/google/benchmark/archive/refs/tags/v1.9.1.zip
+)
+
+set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googlebenchmark)
 
 enable_testing()
+
 add_subdirectory(tests)
+add_subdirectory(benchmarks)

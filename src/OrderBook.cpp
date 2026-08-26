@@ -79,6 +79,11 @@ bool OrderBook::cancelOrder(uint64_t id) {
     return false;
 }
 
+void OrderBook::clear() {
+    m_bids.clear();
+    m_asks.clear();
+}
+
 size_t OrderBook::size() {
     auto bidsSize{ 0uz }, asksSize{ 0uz };
     for (auto& [price, bidsDeque] : m_bids)

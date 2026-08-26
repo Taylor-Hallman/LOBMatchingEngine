@@ -7,5 +7,6 @@ Build/
 .vscode/
 make
 Debug/
+Release/
 test
 Testing/
