@@ -1,6 +1,6 @@
 #include <array>
 #include <gtest/gtest.h>
-#include "OrderBook.h"
+#include "naive/OrderBook.h"
 #include "util/OrderGenerator.h"
 
 TEST(OrderBookTest, EmptyBookQuery) {

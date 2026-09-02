@@ -1,6 +1,6 @@
 #include <benchmark/benchmark.h>
 #include <random>
-#include "OrderBook.h"
+#include "naive/OrderBook.h"
 #include "util/OrderGenerator.h"
 
 static void BM_PlaceOrder_NoMatch_Bids(benchmark::State& state) {
