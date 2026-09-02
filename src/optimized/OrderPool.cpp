@@ -1,0 +1,48 @@
+#include "optimized/OrderPool.h"
+#include <numeric>
+#include <utility>
+
+OrderPool::OrderPool(size_t capacity) : m_available{ capacity }, m_slots(capacity, std::variant<Order, size_t>{std::in_place_index<1>, 0}) {
+    std::iota(m_slots.begin(), m_slots.end(), 1uz);
+}
+
+std::optional<size_t> OrderPool::allocate(const Order& order) {
+    if (m_head >= m_slots.size())
+        return std::nullopt;
+
+    --m_available;
+    auto& head{ m_slots[m_head] };
+    size_t nextFree{ std::get<1>(head) };
+    assert(nextFree >= m_slots.size() || m_slots[nextFree].index() == 1);
+
+    size_t insertedIdx{ m_head };
+    m_head = nextFree;
+    head = order;
+    return insertedIdx;
+}
+
+bool OrderPool::release(size_t handle) {
+    if (handle >= m_slots.size() || m_slots[handle].index() == 1)
+        return false;
+
+    m_slots[handle] = m_head;
+    m_head = handle;
+    ++m_available;
+    return true;
+}
+
+Order* OrderPool::get(size_t handle) {
+    if (handle >= m_slots.size())
+        return nullptr;
+    return std::get_if<Order>(&m_slots[handle]);
+}
+
+int OrderPool::available() const {
+    return m_available;
+}
+
+void OrderPool::reset() {
+    std::iota(m_slots.begin(), m_slots.end(), 1uz);
+    m_available = m_slots.size();
+    m_head = 0;
+}
