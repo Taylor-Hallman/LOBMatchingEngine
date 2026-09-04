@@ -1,6 +1,5 @@
 #include "optimized/Order.h"
 #include <cassert>
-#include <optional>
 #include <variant>
 #include <vector>
 
@@ -12,7 +11,7 @@ private:
 
 public:
     explicit OrderPool(size_t capacity);
-    std::optional<size_t> allocate(const Order& order);
+    size_t allocate(const Order& order);
     bool release(size_t handle);
     Order* get(size_t handle);
     int available() const;

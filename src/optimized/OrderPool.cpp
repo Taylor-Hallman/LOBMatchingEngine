@@ -3,12 +3,13 @@
 #include <utility>
 
 OrderPool::OrderPool(size_t capacity) : m_available{ capacity }, m_slots(capacity, std::variant<Order, size_t>{std::in_place_index<1>, 0}) {
-    std::iota(m_slots.begin(), m_slots.end(), 1uz);
+    std::iota(m_slots.begin(), m_slots.end() - 1, 1uz);
+    m_slots[capacity - 1] = INVALID_IDX;
 }
 
-std::optional<size_t> OrderPool::allocate(const Order& order) {
-    if (m_head >= m_slots.size())
-        return std::nullopt;
+size_t OrderPool::allocate(const Order& order) {
+    if (m_head == INVALID_IDX)
+        return INVALID_IDX;
 
     --m_available;
     auto& head{ m_slots[m_head] };
@@ -42,7 +43,8 @@ int OrderPool::available() const {
 }
 
 void OrderPool::reset() {
-    std::iota(m_slots.begin(), m_slots.end(), 1uz);
+    std::iota(m_slots.begin(), m_slots.end() - 1, 1uz);
+    m_slots[m_slots.size() - 1] = INVALID_IDX;
     m_available = m_slots.size();
     m_head = 0;
 }
