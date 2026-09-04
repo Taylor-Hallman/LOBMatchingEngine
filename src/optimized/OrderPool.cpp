@@ -2,6 +2,13 @@
 #include <numeric>
 #include <utility>
 
+/* Order Pool
+ * This is a pool allocator for orders; another instance of trading memory for speed.
+ * We allocate a big block of memory up front and carve it into identical chunks that store Order objects.
+ * All operations are O(1) and we never have to search for a free slot. The free list is threaded through
+ * the free slots themselves, saving space.
+ */
+
 OrderPool::OrderPool(size_t capacity) : m_available{ capacity }, m_slots(capacity, std::variant<Order, size_t>{std::in_place_index<1>, 0}) {
     std::iota(m_slots.begin(), m_slots.end() - 1, 1uz);
     m_slots[capacity - 1] = INVALID_IDX;
@@ -13,8 +20,8 @@ size_t OrderPool::allocate(const Order& order) {
 
     --m_available;
     auto& head{ m_slots[m_head] };
-    size_t nextFree{ std::get<1>(head) };
-    assert(nextFree >= m_slots.size() || m_slots[nextFree].index() == 1);
+    size_t nextFree{ std::get<size_t>(head) };
+    assert(nextFree == INVALID_IDX || m_slots[nextFree].index() == 1);
 
     size_t insertedIdx{ m_head };
     m_head = nextFree;
