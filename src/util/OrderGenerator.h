@@ -5,8 +5,8 @@
 #include "Side.h"
 
 inline int64_t randomNum(int64_t min, int64_t max) {
-    std::random_device dev;
-    std::mt19937 rng(dev());
+    static std::random_device dev;
+    static std::mt19937 rng(dev());
     std::uniform_int_distribution<std::mt19937::result_type> dist(min, max);
 
     return dist(rng);
@@ -19,7 +19,7 @@ inline Order GenerateOrder(Side side, int64_t priceFloor = 5000, int64_t priceCe
     uint64_t quantity{ static_cast<uint64_t>(randomNum(quantityFloor, quantityCeiling)) };
     Order order{ side, price, quantity };
     
-    std::string sideTxt = side == Side::Buy ? "Buy" : "Sell";
+    /*std::string sideTxt = side == Side::Buy ? "Buy" : "Sell";
     std::println(
         "Generated order {0} to {1} {2} options for ${3}.{4}", 
         order.id, 
@@ -27,7 +27,7 @@ inline Order GenerateOrder(Side side, int64_t priceFloor = 5000, int64_t priceCe
         quantity,
         price / INT64_C(100),
         price % INT64_C(100)
-    );
+    );*/
     
     return order;
 }

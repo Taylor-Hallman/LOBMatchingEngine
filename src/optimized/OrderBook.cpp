@@ -39,21 +39,32 @@ bool OrderBook::releaseOrder(size_t orderIdx) {
 
         // if this was the best order for this side, search for a new best
         if (orderIdx == bestIdx) {
-            auto check = order.side == Side::Buy
-                ? [](size_t& i) { return i-- > 0; }
-                : [](size_t& i) { return ++i < OCCUPANCY_SIZE; };
-
-            for (size_t i{occupIdx}; check(i);) {
-                auto zeros{ std::countr_zero(occupancy[i]) };
-                if (zeros < WORD_SIZE) {
-                    auto newPrice{ i * WORD_SIZE + zeros };
-                    bestIdx = side[newPrice];
-                    assert(bestIdx != INVALID_IDX);
-                    return true;
+            if (orderIdx == bestIdx) {
+                bool found{ false };
+                if (order.side == Side::Buy) {
+                    for (size_t i{occupIdx + 1}; i-- > 0; ) {
+                        auto zeros{ std::countr_zero(occupancy[i]) };
+                        if (zeros < WORD_SIZE) {
+                            auto newPrice{ i * WORD_SIZE + zeros };
+                            bestIdx = side[newPrice];
+                            found = true;
+                            break;
+                        }
+                    }
+                } else {
+                    for (size_t i{occupIdx}; i < OCCUPANCY_SIZE; ++i) {
+                        auto zeros{ std::countr_zero(occupancy[i]) };
+                        if (zeros < WORD_SIZE) {
+                            auto newPrice{ i * WORD_SIZE + zeros };
+                            bestIdx = side[newPrice];
+                            found = true;
+                            break;
+                        }
+                    }
                 }
+                if (!found)
+                    bestIdx = INVALID_IDX;
             }
-
-            bestIdx = INVALID_IDX;
         }
     }
     // Not the last order at this price point, so just update the linked list
@@ -108,19 +119,23 @@ void OrderBook::placeOrder(Order& incoming) {
 
     // Allocate order in pool
     size_t idx{ m_orderPool.allocate(incoming) };
+
     m_orderLocations[incoming.id] = idx;
 
 
     // If we already have an order with this price, append to the end of the list for that price
     if (incomingSide[incoming.price] != INVALID_IDX) {
+        size_t otherIdx{ incomingSide[incoming.price] };
         Order* other{m_orderPool.get(incomingSide[incoming.price])};
         assert(other != nullptr);
-        while (other->next != INVALID_IDX)
+        while (other->next != INVALID_IDX) {
+            otherIdx = other->next;
             other = m_orderPool.get(other->next);
+        }
         other->next = idx;
 
         Order* incomingPtr{ m_orderPool.get(idx) };
-        incomingPtr->prev = m_orderLocations[other->id];
+        incomingPtr->prev = otherIdx;
     }
     else {
         // Insert order at this price point

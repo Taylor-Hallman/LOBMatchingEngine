@@ -551,3 +551,38 @@ TYPED_TEST(OrderBookTest, AttemptMatchRestingAskAfterCancel) {
     EXPECT_EQ(this->book.size(), 1uz);
     EXPECT_EQ(this->book.getBestBuyPrice(), 10000);
 }
+
+TYPED_TEST(OrderBookTest, ClearBook) {
+    using OrderType = typename TestFixture::OrderType;
+    for (size_t i{}; i < 100; ++i) {
+        OrderType bid{ GenerateOrder<OrderType>(Side::Buy) };
+        this->book.placeOrder(bid);
+    }
+    EXPECT_EQ(this->book.size(), 100uz);
+    this->book.clear();
+    EXPECT_EQ(this->book.size(), 0uz);
+    EXPECT_EQ(this->book.getBestBuyPrice(), -1);
+}
+
+TYPED_TEST(OrderBookTest, LongChainSamePrice) {
+    using OrderType = typename TestFixture::OrderType;
+    for (int i = 0; i < 1000; ++i) {
+        OrderType order{ Side::Buy, 10000, 1 };
+        this->book.placeOrder(order);
+    }
+    EXPECT_EQ(this->book.size(), 1000uz);
+}
+
+TYPED_TEST(OrderBookTest, ClearAndReinsertRepeatedly) {
+    using OrderType = typename TestFixture::OrderType;
+    for (int cycle = 0; cycle < 5; ++cycle) {
+        for (int i = 0; i < 100; ++i) {
+            OrderType order{ GenerateOrder<OrderType>(Side::Buy) };
+            this->book.placeOrder(order);
+        }
+        EXPECT_EQ(this->book.size(), 100uz);
+        this->book.clear();
+        EXPECT_EQ(this->book.size(), 0uz);
+        EXPECT_EQ(this->book.getBestBuyPrice(), -1);  
+    }
+}

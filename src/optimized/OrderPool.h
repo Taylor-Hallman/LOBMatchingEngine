@@ -9,9 +9,13 @@ namespace optimized {
 
 class OrderPool {
 private:
+    static inline constexpr size_t GROWTH_FACTOR{ 2uz };
+
     std::vector<std::variant<Order, size_t>> m_slots;
     size_t m_head{};
     size_t m_available;
+
+    void ReAlloc(size_t new_capacity);
 
 public:
     explicit OrderPool(size_t capacity);
