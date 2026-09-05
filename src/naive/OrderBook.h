@@ -4,9 +4,12 @@
 #include <deque>
 #include <map>
 
+namespace naive {
+
 class OrderBook {
+public:
+    using OrderType = Order; // naive::Order
 private:
-    // Naive approach, to be improved later
     std::map<int64_t, std::deque<Order>, std::greater<int64_t>> m_bids; 
     std::map<int64_t, std::deque<Order>> m_asks; 
 
@@ -24,3 +27,5 @@ public:
     std::deque<Order> getBidsAtPrice(int64_t price);
     std::deque<Order> getAsksAtPrice(int64_t price);
 };
+
+}

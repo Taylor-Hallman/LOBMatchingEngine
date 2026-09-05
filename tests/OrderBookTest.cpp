@@ -1,251 +1,165 @@
 #include <array>
 #include <gtest/gtest.h>
 #include "naive/OrderBook.h"
+#include "optimized/OrderBook.h"
 #include "util/OrderGenerator.h"
 
-TEST(OrderBookTest, EmptyBookQuery) {
-    OrderBook book;
-    EXPECT_EQ(book.size(), 0uz);
-    EXPECT_EQ(book.getBestBuyPrice(), -1);
-    EXPECT_EQ(book.getBestSellPrice(), -1);
+template<typename BookType>
+class OrderBookTest : public ::testing::Test {
+protected:
+    using OrderType = typename BookType::OrderType;
+    BookType book;
+};
+
+using BookTypes = ::testing::Types<naive::OrderBook, optimized::OrderBook>;
+TYPED_TEST_SUITE(OrderBookTest, BookTypes);
+
+TYPED_TEST(OrderBookTest, EmptyBookQuery) {
+    EXPECT_EQ(this->book.size(), 0uz);
+    EXPECT_EQ(this->book.getBestBuyPrice(), -1);
+    EXPECT_EQ(this->book.getBestSellPrice(), -1);
 }
 
-TEST(OrderBookTest, PlaceTwoBids) {
-    OrderBook book;
-    Order order{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 100,
-    };
-    Order order2{
-        .side = Side::Buy,
-        .price = 8000,
-        .quantity = 100,
-    };
-    book.placeOrder(order);
-    EXPECT_EQ(book.size(), 1uz);
-    book.placeOrder(order2);
-    EXPECT_EQ(book.size(), 2uz);
-    EXPECT_EQ(book.getBestBuyPrice(), 10000);
+TYPED_TEST(OrderBookTest, PlaceTwoBids) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType order{ Side::Buy, 10000, 100 };
+    OrderType order2{ Side::Buy, 8000, 100 };
+    this->book.placeOrder(order);
+    EXPECT_EQ(this->book.size(), 1uz);
+    this->book.placeOrder(order2);
+    EXPECT_EQ(this->book.size(), 2uz);
+    EXPECT_EQ(this->book.getBestBuyPrice(), 10000);
 }
 
-TEST(OrderBookTest, PlaceTwoAsks) {
-    OrderBook book;
-    Order order{
-        .side = Side::Sell,
-        .price = 10000,
-        .quantity = 100,
-    };
-    Order order2{
-        .side = Side::Sell,
-        .price = 8000,
-        .quantity = 100,
-    };
-    book.placeOrder(order);
-    EXPECT_EQ(book.size(), 1uz);
-    book.placeOrder(order2);
-    EXPECT_EQ(book.size(), 2uz);
-    EXPECT_EQ(book.getBestSellPrice(), 8000);
+TYPED_TEST(OrderBookTest, PlaceTwoAsks) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType order{ Side::Sell, 10000, 100 };
+    OrderType order2{ Side::Sell, 8000, 100 };
+    this->book.placeOrder(order);
+    EXPECT_EQ(this->book.size(), 1uz);
+    this->book.placeOrder(order2);
+    EXPECT_EQ(this->book.size(), 2uz);
+    EXPECT_EQ(this->book.getBestSellPrice(), 8000);
 }
 
-TEST(OrderBookTest, NearMatchRestingBid) {
-    OrderBook book;
-    Order order{
-        .side = Side::Buy,
-        .price = 9999,
-        .quantity = 100,
-    };
-    Order order2{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 100,
-    };
-    book.placeOrder(order);
-    EXPECT_EQ(book.size(), 1uz);
-    book.placeOrder(order2);
-    EXPECT_EQ(book.size(), 2uz);
+TYPED_TEST(OrderBookTest, NearMatchRestingBid) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType order{ Side::Buy, 9999, 100 };
+    OrderType order2{ Side::Buy, 10000, 100 };
+    this->book.placeOrder(order);
+    EXPECT_EQ(this->book.size(), 1uz);
+    this->book.placeOrder(order2);
+    EXPECT_EQ(this->book.size(), 2uz);
     EXPECT_EQ(order.remaining_qty, order.quantity);
     EXPECT_EQ(order2.remaining_qty, order2.quantity);
 }
 
-TEST(OrderBookTest, NearMatchRestingAsk) {
-    OrderBook book;
-    Order order{
-        .side = Side::Sell,
-        .price = 10000,
-        .quantity = 100,
-    };
-    Order order2{
-        .side = Side::Buy,
-        .price = 9999,
-        .quantity = 100,
-    };
-    book.placeOrder(order);
-    EXPECT_EQ(book.size(), 1uz);
-    book.placeOrder(order2);
-    EXPECT_EQ(book.size(), 2uz);
+TYPED_TEST(OrderBookTest, NearMatchRestingAsk) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType order{ Side::Sell, 10000, 100 };
+    OrderType order2{ Side::Buy, 9999, 100 };
+    this->book.placeOrder(order);
+    EXPECT_EQ(this->book.size(), 1uz);
+    this->book.placeOrder(order2);
+    EXPECT_EQ(this->book.size(), 2uz);
     EXPECT_EQ(order.remaining_qty, order.quantity);
     EXPECT_EQ(order2.remaining_qty, order2.quantity);
 }
 
-TEST(OrderBookTest, MatchRestingBid) {
-    OrderBook book;
-    Order order{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 100,
-    };
-    Order order2{
-        .side = Side::Sell,
-        .price = 8000,
-        .quantity = 100,
-    };
-    book.placeOrder(order);
-    EXPECT_EQ(book.size(), 1uz);
-    book.placeOrder(order2);
-    EXPECT_EQ(book.size(), 0uz);
+TYPED_TEST(OrderBookTest, MatchRestingBid) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType order{ Side::Buy, 10000, 100 };
+    OrderType order2{ Side::Sell, 8000, 100 };
+    this->book.placeOrder(order);
+    EXPECT_EQ(this->book.size(), 1uz);
+    this->book.placeOrder(order2);
+    EXPECT_EQ(this->book.size(), 0uz);
     EXPECT_EQ(order2.remaining_qty, 0);
 }
 
-TEST(OrderBookTest, MatchRestingAsk) {
-    OrderBook book;
-    Order order{
-        .side = Side::Sell,
-        .price = 8000,
-        .quantity = 100,
-    };
-    Order order2{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 100,
-    };
-    book.placeOrder(order);
-    EXPECT_EQ(book.size(), 1uz);
-    book.placeOrder(order2);
-    EXPECT_EQ(book.size(), 0uz);
+TYPED_TEST(OrderBookTest, MatchRestingAsk) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType order{ Side::Sell, 8000, 100 };
+    OrderType order2{ Side::Buy, 10000, 100 };
+    this->book.placeOrder(order);
+    EXPECT_EQ(this->book.size(), 1uz);
+    this->book.placeOrder(order2);
+    EXPECT_EQ(this->book.size(), 0uz);
     EXPECT_EQ(order2.remaining_qty, 0);
 }
 
-TEST(OrderBookTest, ExactMatchRestingBid) {
-    OrderBook book;
-    Order order{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 100,
-    };
-    Order order2{
-        .side = Side::Sell,
-        .price = 10000,
-        .quantity = 100,
-    };
-    book.placeOrder(order);
-    EXPECT_EQ(book.size(), 1uz);
-    book.placeOrder(order2);
-    EXPECT_EQ(book.size(), 0uz);
+TYPED_TEST(OrderBookTest, ExactMatchRestingBid) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType order{ Side::Buy, 10000, 100 };
+    OrderType order2{ Side::Sell, 10000, 100 };
+    this->book.placeOrder(order);
+    EXPECT_EQ(this->book.size(), 1uz);
+    this->book.placeOrder(order2);
+    EXPECT_EQ(this->book.size(), 0uz);
     EXPECT_EQ(order2.remaining_qty, 0);
 }
 
-TEST(OrderBookTest, ExactMatchRestingAsk) {
-    OrderBook book;
-    Order order{
-        .side = Side::Sell,
-        .price = 10000,
-        .quantity = 100,
-    };
-    Order order2{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 100,
-    };
-    book.placeOrder(order);
-    EXPECT_EQ(book.size(), 1uz);
-    book.placeOrder(order2);
-    EXPECT_EQ(book.size(), 0uz);
+TYPED_TEST(OrderBookTest, ExactMatchRestingAsk) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType order{ Side::Sell, 10000, 100 };
+    OrderType order2{ Side::Buy, 10000, 100 };
+    this->book.placeOrder(order);
+    EXPECT_EQ(this->book.size(), 1uz);
+    this->book.placeOrder(order2);
+    EXPECT_EQ(this->book.size(), 0uz);
     EXPECT_EQ(order2.remaining_qty, 0);
 }
 
-TEST(OrderBookTest, PartialMatchRestingBid) {
-    OrderBook book;
-    Order order{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 100,
-    };
-    Order order2{
-        .side = Side::Sell,
-        .price = 8000,
-        .quantity = 50,
-    };
-    book.placeOrder(order);
-    EXPECT_EQ(book.size(), 1uz);
-    book.placeOrder(order2);
-    EXPECT_EQ(book.size(), 1uz);
+TYPED_TEST(OrderBookTest, PartialMatchRestingBid) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType order{ Side::Buy, 10000, 100 };
+    OrderType order2{ Side::Sell, 8000, 50 };
+    this->book.placeOrder(order);
+    EXPECT_EQ(this->book.size(), 1uz);
+    this->book.placeOrder(order2);
+    EXPECT_EQ(this->book.size(), 1uz);
 
-    auto bids{ book.getBidsAtPrice(order.price) };
+    auto bids{ this->book.getBidsAtPrice(order.price) };
     ASSERT_FALSE(bids.empty());
     EXPECT_EQ(bids.size(), 1uz);
     EXPECT_EQ(bids.front().remaining_qty, 50);
     EXPECT_EQ(order2.remaining_qty, 0);
 }
 
-TEST(OrderBookTest, PartialMatchRestingAsk) {
-    OrderBook book;
-    Order order{
-        .side = Side::Sell,
-        .price = 8000,
-        .quantity = 100,
-    };
-    Order order2{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 50,
-    };
-    book.placeOrder(order);
-    EXPECT_EQ(book.size(), 1uz);
-    book.placeOrder(order2);
-    EXPECT_EQ(book.size(), 1uz);
+TYPED_TEST(OrderBookTest, PartialMatchRestingAsk) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType order{ Side::Sell, 8000, 100 };
+    OrderType order2{ Side::Buy, 10000, 50 };
+    this->book.placeOrder(order);
+    EXPECT_EQ(this->book.size(), 1uz);
+    this->book.placeOrder(order2);
+    EXPECT_EQ(this->book.size(), 1uz);
 
-    auto asks{ book.getAsksAtPrice(order.price) };
+    auto asks{ this->book.getAsksAtPrice(order.price) };
     ASSERT_FALSE(asks.empty());
     EXPECT_EQ(asks.size(), 1uz);
     EXPECT_EQ(asks.front().remaining_qty, 50);
     EXPECT_EQ(order2.remaining_qty, 0);
 }
 
-TEST(OrderBookTest, MatchBestBid) {
-    OrderBook book;
-    Order bid{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 100,
-    };
-    Order bid2{
-        .side = Side::Buy,
-        .price = 8000,
-        .quantity = 100,
-    };
-    Order bid3{
-        .side = Side::Buy,
-        .price = 11000,
-        .quantity = 100,
-    };
-    Order ask{
-        .side = Side::Sell,
-        .price = 7000,
-        .quantity = 100,
-    };
-    book.placeOrder(bid);
-    book.placeOrder(bid2);
-    book.placeOrder(bid3);
-    EXPECT_EQ(book.size(), 3uz);
-    EXPECT_EQ(book.getBestBuyPrice(), 11000);
+TYPED_TEST(OrderBookTest, MatchBestBid) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType bid{ Side::Buy, 10000, 100 };
+    OrderType bid2{ Side::Buy, 8000, 100 };
+    OrderType bid3{ Side::Buy, 11000, 100 };
+    OrderType ask{ Side::Sell, 7000, 100 };
+    this->book.placeOrder(bid);
+    this->book.placeOrder(bid2);
+    this->book.placeOrder(bid3);
+    EXPECT_EQ(this->book.size(), 3uz);
+    EXPECT_EQ(this->book.getBestBuyPrice(), 11000);
 
-    book.placeOrder(ask);
-    EXPECT_EQ(book.size(), 2uz);
+    this->book.placeOrder(ask);
+    EXPECT_EQ(this->book.size(), 2uz);
 
-    auto bidsLow{ book.getBidsAtPrice(8000) }, 
-         bidsMid{ book.getBidsAtPrice(10000) },
-         bidsHigh{ book.getBidsAtPrice(11000) };
+    auto bidsLow{ this->book.getBidsAtPrice(8000) },
+         bidsMid{ this->book.getBidsAtPrice(10000) },
+         bidsHigh{ this->book.getBidsAtPrice(11000) };
 
     ASSERT_FALSE(bidsLow.empty() || bidsMid.empty());
     EXPECT_EQ(bidsLow.size(), 1uz);
@@ -257,40 +171,24 @@ TEST(OrderBookTest, MatchBestBid) {
     EXPECT_EQ(ask.remaining_qty, 0);
 }
 
-TEST(OrderBookTest, MatchBestAsk) {
-    OrderBook book;
-    Order ask{
-        .side = Side::Sell,
-        .price = 10000,
-        .quantity = 100,
-    };
-    Order ask2{
-        .side = Side::Sell,
-        .price = 8000,
-        .quantity = 100,
-    };
-    Order ask3{
-        .side = Side::Sell,
-        .price = 11000,
-        .quantity = 100,
-    };
-    Order bid{
-        .side = Side::Buy,
-        .price = 12000,
-        .quantity = 100,
-    };
-    book.placeOrder(ask);
-    book.placeOrder(ask2);
-    book.placeOrder(ask3);
-    EXPECT_EQ(book.size(), 3uz);
-    EXPECT_EQ(book.getBestSellPrice(), 8000);
+TYPED_TEST(OrderBookTest, MatchBestAsk) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType ask{ Side::Sell, 10000, 100 };
+    OrderType ask2{ Side::Sell, 8000, 100 };
+    OrderType ask3{ Side::Sell, 11000, 100 };
+    OrderType bid{ Side::Buy, 12000, 100 };
+    this->book.placeOrder(ask);
+    this->book.placeOrder(ask2);
+    this->book.placeOrder(ask3);
+    EXPECT_EQ(this->book.size(), 3uz);
+    EXPECT_EQ(this->book.getBestSellPrice(), 8000);
 
-    book.placeOrder(bid);
-    EXPECT_EQ(book.size(), 2uz);
+    this->book.placeOrder(bid);
+    EXPECT_EQ(this->book.size(), 2uz);
 
-    auto asksLow{ book.getAsksAtPrice(8000) }, 
-         asksMid{ book.getAsksAtPrice(10000) },
-         asksHigh{ book.getAsksAtPrice(11000) };
+    auto asksLow{ this->book.getAsksAtPrice(8000) },
+         asksMid{ this->book.getAsksAtPrice(10000) },
+         asksHigh{ this->book.getAsksAtPrice(11000) };
 
     ASSERT_FALSE(asksMid.empty() || asksHigh.empty());
     EXPECT_TRUE(asksLow.empty());
@@ -302,531 +200,354 @@ TEST(OrderBookTest, MatchBestAsk) {
     EXPECT_EQ(bid.remaining_qty, 0);
 }
 
-TEST(OrderBookTest, MatchMultipleBids) {
-    OrderBook book;
-    Order bid{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 100,
-    };
-    Order bid2{
-        .side = Side::Buy,
-        .price = 8000,
-        .quantity = 100,
-    };
-    Order bid3{
-        .side = Side::Buy,
-        .price = 11000,
-        .quantity = 100,
-    };
-    Order ask{
-        .side = Side::Sell,
-        .price = 7000,
-        .quantity = 200,
-    };
-    book.placeOrder(bid);
-    book.placeOrder(bid2);
-    book.placeOrder(bid3);
-    EXPECT_EQ(book.size(), 3uz);
-    EXPECT_EQ(book.getBestBuyPrice(), 11000);
+TYPED_TEST(OrderBookTest, MatchMultipleBids) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType bid{ Side::Buy, 10000, 100 };
+    OrderType bid2{ Side::Buy, 8000, 100 };
+    OrderType bid3{ Side::Buy, 11000, 100 };
+    OrderType ask{ Side::Sell, 7000, 200 };
+    this->book.placeOrder(bid);
+    this->book.placeOrder(bid2);
+    this->book.placeOrder(bid3);
+    EXPECT_EQ(this->book.size(), 3uz);
+    EXPECT_EQ(this->book.getBestBuyPrice(), 11000);
 
-    book.placeOrder(ask);
-    EXPECT_EQ(book.size(), 1uz);
+    this->book.placeOrder(ask);
+    EXPECT_EQ(this->book.size(), 1uz);
 
-    auto bidsLow{ book.getBidsAtPrice(8000) },
-         bidsMid{ book.getBidsAtPrice(10000) },
-         bidsHigh{ book.getBidsAtPrice(11000) };
+    auto bidsLow{ this->book.getBidsAtPrice(8000) },
+         bidsMid{ this->book.getBidsAtPrice(10000) },
+         bidsHigh{ this->book.getBidsAtPrice(11000) };
 
     ASSERT_FALSE(bidsLow.empty());
     EXPECT_TRUE(bidsMid.empty() && bidsHigh.empty());
     EXPECT_EQ(bidsLow.size(), 1uz);
-    EXPECT_EQ(book.getBestBuyPrice(), 8000);
+    EXPECT_EQ(this->book.getBestBuyPrice(), 8000);
 
     EXPECT_EQ(bidsLow.front().remaining_qty, bidsLow.front().quantity);
     EXPECT_EQ(ask.remaining_qty, 0);
 }
 
-TEST(OrderBookTest, MatchMultipleAsks) {
-    OrderBook book;
-    Order ask{
-        .side = Side::Sell,
-        .price = 10000,
-        .quantity = 100,
-    };
-    Order ask2{
-        .side = Side::Sell,
-        .price = 8000,
-        .quantity = 100,
-    };
-    Order ask3{
-        .side = Side::Sell,
-        .price = 11000,
-        .quantity = 100,
-    };
-    Order bid{
-        .side = Side::Buy,
-        .price = 12000,
-        .quantity = 200,
-    };
-    book.placeOrder(ask);
-    book.placeOrder(ask2);
-    book.placeOrder(ask3);
-    EXPECT_EQ(book.size(), 3uz);
-    EXPECT_EQ(book.getBestSellPrice(), 8000);
+TYPED_TEST(OrderBookTest, MatchMultipleAsks) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType ask{ Side::Sell, 10000, 100 };
+    OrderType ask2{ Side::Sell, 8000, 100 };
+    OrderType ask3{ Side::Sell, 11000, 100 };
+    OrderType bid{ Side::Buy, 12000, 200 };
+    this->book.placeOrder(ask);
+    this->book.placeOrder(ask2);
+    this->book.placeOrder(ask3);
+    EXPECT_EQ(this->book.size(), 3uz);
+    EXPECT_EQ(this->book.getBestSellPrice(), 8000);
 
-    book.placeOrder(bid);
-    EXPECT_EQ(book.size(), 1uz);
+    this->book.placeOrder(bid);
+    EXPECT_EQ(this->book.size(), 1uz);
 
-    auto asksLow{ book.getAsksAtPrice(8000) },
-         asksMid{ book.getAsksAtPrice(10000) },
-         asksHigh{ book.getAsksAtPrice(11000) };
+    auto asksLow{ this->book.getAsksAtPrice(8000) },
+         asksMid{ this->book.getAsksAtPrice(10000) },
+         asksHigh{ this->book.getAsksAtPrice(11000) };
 
     ASSERT_FALSE(asksHigh.empty());
     EXPECT_TRUE(asksLow.empty() && asksMid.empty());
     EXPECT_EQ(asksHigh.size(), 1uz);
-    EXPECT_EQ(book.getBestSellPrice(), 11000);
+    EXPECT_EQ(this->book.getBestSellPrice(), 11000);
 
     EXPECT_EQ(asksHigh.front().remaining_qty, asksHigh.front().quantity);
     EXPECT_EQ(bid.remaining_qty, 0);
 }
 
-TEST(OrderBookTest, NewerHasHigherSequence) {
-    OrderBook book;
-    Order bid{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 100
-    };
-    
-    book.placeOrder(bid);
-    book.placeOrder(bid);
+TYPED_TEST(OrderBookTest, NewerHasHigherSequence) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType bid{ Side::Buy, 10000, 100 };
 
-    auto bids{ book.getBidsAtPrice(10000) }; 
+    this->book.placeOrder(bid);
+    this->book.placeOrder(bid);
+
+    auto bids{ this->book.getBidsAtPrice(10000) };
     ASSERT_EQ(bids.size(), 2uz);
 
     EXPECT_GT(bids[1].sequence, bids[0].sequence);
 }
 
-TEST(OrderBookTest, PrioritizeOldest) {
-    OrderBook book;
-    Order bidOlder{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 100,
-    };
-    Order bidNewer{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 100,
-    };
-    Order askOlder{
-        .side = Side::Sell,
-        .price = 12000,
-        .quantity = 100,
-    };
-    Order askNewer{
-        .side = Side::Sell,
-        .price = 12000,
-        .quantity = 100,
-    };
-    book.placeOrder(bidOlder);
-    book.placeOrder(bidNewer);
-    book.placeOrder(askOlder);
-    book.placeOrder(askNewer);
-    EXPECT_EQ(book.size(), 4uz);
-    
-    Order incomingAsk{
-        .side = Side::Sell,
-        .price = 10000,
-        .quantity = 100,
-    };
-    Order incomingBid{
-        .side = Side::Buy,
-        .price = 12000,
-        .quantity = 100,
-    };
+TYPED_TEST(OrderBookTest, PrioritizeOldest) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType bidOlder{ Side::Buy, 10000, 100 };
+    OrderType bidNewer{ Side::Buy, 10000, 100 };
+    OrderType askOlder{ Side::Sell, 12000, 100 };
+    OrderType askNewer{ Side::Sell, 12000, 100 };
+    this->book.placeOrder(bidOlder);
+    this->book.placeOrder(bidNewer);
+    this->book.placeOrder(askOlder);
+    this->book.placeOrder(askNewer);
+    EXPECT_EQ(this->book.size(), 4uz);
 
-    book.placeOrder(incomingAsk);
-    EXPECT_EQ(book.size(), 3uz);
+    OrderType incomingAsk{ Side::Sell, 10000, 100 };
+    OrderType incomingBid{ Side::Buy, 12000, 100 };
+
+    this->book.placeOrder(incomingAsk);
+    EXPECT_EQ(this->book.size(), 3uz);
     EXPECT_EQ(incomingAsk.remaining_qty, 0);
-    auto bids{ book.getBidsAtPrice(10000) };
+    auto bids{ this->book.getBidsAtPrice(10000) };
     ASSERT_FALSE(bids.empty());
     EXPECT_EQ(bids.size(), 1uz);
     EXPECT_EQ(bids.front().id, bidNewer.id);
 
-    book.placeOrder(incomingBid);
-    EXPECT_EQ(book.size(), 2uz);
+    this->book.placeOrder(incomingBid);
+    EXPECT_EQ(this->book.size(), 2uz);
     EXPECT_EQ(incomingBid.remaining_qty, 0);
-    auto asks{ book.getAsksAtPrice(12000) };
+    auto asks{ this->book.getAsksAtPrice(12000) };
     ASSERT_FALSE(asks.empty());
     EXPECT_EQ(asks.size(), 1uz);
     EXPECT_EQ(asks.front().id, askNewer.id);
 }
 
-TEST(OrderBookTest, ExhaustAllAsks) {
-    OrderBook book;
+TYPED_TEST(OrderBookTest, ExhaustAllAsks) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType ask1{ Side::Sell, 12000, 100 };
+    OrderType ask2{ Side::Sell, 10000, 100 };
+    OrderType ask3{ Side::Sell, 8000, 100 };
+    OrderType bigBid{ Side::Buy, 12000, 500 };
 
-    Order ask1{
-        .side = Side::Sell,
-        .price = 12000,
-        .quantity = 100
-    };
-    Order ask2{
-        .side = Side::Sell,
-        .price = 10000,
-        .quantity = 100
-    };
-    Order ask3{
-        .side = Side::Sell,
-        .price = 8000,
-        .quantity = 100
-    };
+    this->book.placeOrder(ask1);
+    this->book.placeOrder(ask2);
+    this->book.placeOrder(ask3);
+    EXPECT_EQ(this->book.size(), 3uz);
 
-    Order bigBid{
-        .side = Side::Buy,
-        .price = 12000,
-        .quantity = 500
-    };
+    this->book.placeOrder(bigBid);
+    EXPECT_EQ(this->book.size(), 1uz);
 
-    book.placeOrder(ask1);
-    book.placeOrder(ask2);
-    book.placeOrder(ask3);
-    EXPECT_EQ(book.size(), 3uz);
-
-    book.placeOrder(bigBid);
-    EXPECT_EQ(book.size(), 1uz);
-
-    auto bids{ book.getBidsAtPrice(12000) };
+    auto bids{ this->book.getBidsAtPrice(12000) };
     ASSERT_FALSE(bids.empty());
     EXPECT_EQ(bids.size(), 1uz);
     EXPECT_EQ(bids.front().id, bigBid.id);
     EXPECT_EQ(bids.front().remaining_qty, 200);
 }
 
-TEST(OrderBookTest, ExhaustAllBids) {
-    OrderBook book;
+TYPED_TEST(OrderBookTest, ExhaustAllBids) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType bid1{ Side::Buy, 12000, 100 };
+    OrderType bid2{ Side::Buy, 10000, 100 };
+    OrderType bid3{ Side::Buy, 8000, 100 };
+    OrderType bigAsk{ Side::Sell, 8000, 500 };
 
-    Order bid1{
-        .side = Side::Buy,
-        .price = 12000,
-        .quantity = 100
-    };
-    Order bid2{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 100
-    };
-    Order bid3{
-        .side = Side::Buy,
-        .price = 8000,
-        .quantity = 100
-    };
+    this->book.placeOrder(bid1);
+    this->book.placeOrder(bid2);
+    this->book.placeOrder(bid3);
+    EXPECT_EQ(this->book.size(), 3uz);
 
-    Order bigAsk{
-        .side = Side::Sell,
-        .price = 8000,
-        .quantity = 500
-    };
+    this->book.placeOrder(bigAsk);
+    EXPECT_EQ(this->book.size(), 1uz);
 
-    book.placeOrder(bid1);
-    book.placeOrder(bid2);
-    book.placeOrder(bid3);
-    EXPECT_EQ(book.size(), 3uz);
-
-    book.placeOrder(bigAsk);
-    EXPECT_EQ(book.size(), 1uz);
-
-    auto asks{ book.getAsksAtPrice(8000) };
+    auto asks{ this->book.getAsksAtPrice(8000) };
     ASSERT_FALSE(asks.empty());
     EXPECT_EQ(asks.size(), 1uz);
     EXPECT_EQ(asks.front().id, bigAsk.id);
     EXPECT_EQ(asks.front().remaining_qty, 200);
 }
 
-TEST(OrderBookTest, PlaceAndCancel) {
-    OrderBook book;
-
-    Order order{ GenerateOrder() };
+TYPED_TEST(OrderBookTest, PlaceAndCancel) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType order{ GenerateOrder<OrderType>() };
     auto id{ order.id };
-    
-    book.placeOrder(order);
-    EXPECT_EQ(book.size(), 1uz);
 
-    bool cancelled{ book.cancelOrder(id) };
+    this->book.placeOrder(order);
+    EXPECT_EQ(this->book.size(), 1uz);
+
+    bool cancelled{ this->book.cancelOrder(id) };
     EXPECT_TRUE(cancelled);
-    EXPECT_EQ(book.size(), 0uz);
+    EXPECT_EQ(this->book.size(), 0uz);
 }
 
-TEST(OrderBookTest, PlaceManyCancelOne) {
-    OrderBook book;
+TYPED_TEST(OrderBookTest, PlaceManyCancelOne) {
+    using OrderType = typename TestFixture::OrderType;
     uint64_t id{};
     for (int i{}; i < 10; ++i) {
-        Order order{ GenerateOrder(Side::Buy) };
-        book.placeOrder(order);
+        OrderType order{ GenerateOrder<OrderType>(Side::Buy) };
+        this->book.placeOrder(order);
         if (i == 5)
             id = order.id;
     }
-    EXPECT_EQ(book.size(), 10uz);
+    EXPECT_EQ(this->book.size(), 10uz);
 
-    bool cancelled{ book.cancelOrder(id) };
+    bool cancelled{ this->book.cancelOrder(id) };
     EXPECT_TRUE(cancelled);
-    EXPECT_EQ(book.size(), 9uz);
+    EXPECT_EQ(this->book.size(), 9uz);
 }
 
-TEST(OrderBookTest, CancelNonexistent) {
-    OrderBook book;
+TYPED_TEST(OrderBookTest, CancelNonexistent) {
+    using OrderType = typename TestFixture::OrderType;
     std::array<uint64_t, 10> ids;
     for (int i{}; i < 10; ++i) {
-        Order order{ GenerateOrder(Side::Buy) };
-        book.placeOrder(order);
+        OrderType order{ GenerateOrder<OrderType>(Side::Buy) };
+        this->book.placeOrder(order);
         ids[i] = order.id;
     }
-    EXPECT_EQ(book.size(), 10uz);
+    EXPECT_EQ(this->book.size(), 10uz);
 
-    auto cancelId{ (*std::max_element(ids.begin(), ids.end())) + 1};
-    bool cancelled{ book.cancelOrder(cancelId) };
+    auto cancelId{ (*std::max_element(ids.begin(), ids.end())) + 1 };
+    bool cancelled{ this->book.cancelOrder(cancelId) };
     EXPECT_FALSE(cancelled);
-    EXPECT_EQ(book.size(), 10uz);
+    EXPECT_EQ(this->book.size(), 10uz);
 }
 
-TEST(OrderBookTest, DoubleCancel) {
-    OrderBook book;
+TYPED_TEST(OrderBookTest, DoubleCancel) {
+    using OrderType = typename TestFixture::OrderType;
     uint64_t id{};
     for (int i{}; i < 10; ++i) {
-        Order order{ GenerateOrder(Side::Buy) };
-        book.placeOrder(order);
+        OrderType order{ GenerateOrder<OrderType>(Side::Buy) };
+        this->book.placeOrder(order);
         if (i == 5)
             id = order.id;
     }
-    EXPECT_EQ(book.size(), 10uz);
+    EXPECT_EQ(this->book.size(), 10uz);
 
-    bool cancelled{ book.cancelOrder(id) };
+    bool cancelled{ this->book.cancelOrder(id) };
     EXPECT_TRUE(cancelled);
-    EXPECT_EQ(book.size(), 9uz);
+    EXPECT_EQ(this->book.size(), 9uz);
 
-    bool cancelledAgain{ book.cancelOrder(id) };
+    bool cancelledAgain{ this->book.cancelOrder(id) };
     EXPECT_FALSE(cancelledAgain);
-    EXPECT_EQ(book.size(), 9uz);
+    EXPECT_EQ(this->book.size(), 9uz);
 }
 
-TEST(OrderBookTest, CancelLastBidAtPrice) {
-    OrderBook book;
-    Order order{
-        .side = Side::Buy,
-        .price = 8000,
-        .quantity = 100
-    };
-    Order order2{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 100
-    };
-    book.placeOrder(order);
-    book.placeOrder(order2);
-    EXPECT_EQ(book.size(), 2uz);
+TYPED_TEST(OrderBookTest, CancelLastBidAtPrice) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType order{ Side::Buy, 8000, 100 };
+    OrderType order2{ Side::Buy, 10000, 100 };
+    this->book.placeOrder(order);
+    this->book.placeOrder(order2);
+    EXPECT_EQ(this->book.size(), 2uz);
 
-    auto best{ book.getBestBuyPrice() };
+    auto best{ this->book.getBestBuyPrice() };
     EXPECT_EQ(best, 10000);
 
-    bool cancelled{ book.cancelOrder(order2.id) };
+    bool cancelled{ this->book.cancelOrder(order2.id) };
     EXPECT_TRUE(cancelled);
-    EXPECT_EQ(book.size(), 1uz);
+    EXPECT_EQ(this->book.size(), 1uz);
 
-    auto newBest{ book.getBestBuyPrice() };
+    auto newBest{ this->book.getBestBuyPrice() };
     EXPECT_EQ(newBest, 8000);
 }
 
-TEST(OrderBookTest, CancelLastAskAtPrice) {
-    OrderBook book;
-    Order order{
-        .side = Side::Sell,
-        .price = 8000,
-        .quantity = 100
-    };
-    Order order2{
-        .side = Side::Sell,
-        .price = 10000,
-        .quantity = 100
-    };
-    book.placeOrder(order);
-    book.placeOrder(order2);
-    EXPECT_EQ(book.size(), 2uz);
+TYPED_TEST(OrderBookTest, CancelLastAskAtPrice) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType order{ Side::Sell, 8000, 100 };
+    OrderType order2{ Side::Sell, 10000, 100 };
+    this->book.placeOrder(order);
+    this->book.placeOrder(order2);
+    EXPECT_EQ(this->book.size(), 2uz);
 
-    auto best{ book.getBestSellPrice() };
+    auto best{ this->book.getBestSellPrice() };
     EXPECT_EQ(best, 8000);
 
-    bool cancelled{ book.cancelOrder(order.id) };
+    bool cancelled{ this->book.cancelOrder(order.id) };
     EXPECT_TRUE(cancelled);
-    EXPECT_EQ(book.size(), 1uz);
+    EXPECT_EQ(this->book.size(), 1uz);
 
-    auto newBest{ book.getBestSellPrice() };
+    auto newBest{ this->book.getBestSellPrice() };
     EXPECT_EQ(newBest, 10000);
 }
 
-TEST(OrderBookTest, CancelOneBidAtPrice) {
-    OrderBook book;
-    Order order{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 100
-    };
-    Order order2{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 100
-    };
-    Order order3{
-        .side = Side::Buy,
-        .price = 8000,
-        .quantity = 100
-    };
-    book.placeOrder(order);
-    book.placeOrder(order2);
-    book.placeOrder(order3);
-    EXPECT_EQ(book.size(), 3uz);
+TYPED_TEST(OrderBookTest, CancelOneBidAtPrice) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType order{ Side::Buy, 10000, 100 };
+    OrderType order2{ Side::Buy, 10000, 100 };
+    OrderType order3{ Side::Buy, 8000, 100 };
+    this->book.placeOrder(order);
+    this->book.placeOrder(order2);
+    this->book.placeOrder(order3);
+    EXPECT_EQ(this->book.size(), 3uz);
 
-    auto best{ book.getBestBuyPrice() };
+    auto best{ this->book.getBestBuyPrice() };
     EXPECT_EQ(best, 10000);
 
-    bool cancelled{ book.cancelOrder(order.id) };
+    bool cancelled{ this->book.cancelOrder(order.id) };
     EXPECT_TRUE(cancelled);
-    EXPECT_EQ(book.size(), 2uz);
+    EXPECT_EQ(this->book.size(), 2uz);
 
-    auto newBest{ book.getBestBuyPrice() };
+    auto newBest{ this->book.getBestBuyPrice() };
     EXPECT_EQ(newBest, 10000);
 }
 
-TEST(OrderBookTest, CancelOneAskAtPrice) {
-    OrderBook book;
-    Order order{
-        .side = Side::Sell,
-        .price = 8000,
-        .quantity = 100
-    };
-    Order order2{
-        .side = Side::Sell,
-        .price = 10000,
-        .quantity = 100
-    };
-    Order order3{
-        .side = Side::Sell,
-        .price = 8000,
-        .quantity = 100
-    };
-    book.placeOrder(order);
-    book.placeOrder(order2);
-    book.placeOrder(order3);
-    EXPECT_EQ(book.size(), 3uz);
+TYPED_TEST(OrderBookTest, CancelOneAskAtPrice) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType order{ Side::Sell, 8000, 100 };
+    OrderType order2{ Side::Sell, 10000, 100 };
+    OrderType order3{ Side::Sell, 8000, 100 };
+    this->book.placeOrder(order);
+    this->book.placeOrder(order2);
+    this->book.placeOrder(order3);
+    EXPECT_EQ(this->book.size(), 3uz);
 
-    auto best{ book.getBestSellPrice() };
+    auto best{ this->book.getBestSellPrice() };
     EXPECT_EQ(best, 8000);
 
-    bool cancelled{ book.cancelOrder(order.id) };
+    bool cancelled{ this->book.cancelOrder(order.id) };
     EXPECT_TRUE(cancelled);
-    EXPECT_EQ(book.size(), 2uz);
+    EXPECT_EQ(this->book.size(), 2uz);
 
-    auto newBest{ book.getBestSellPrice() };
+    auto newBest{ this->book.getBestSellPrice() };
     EXPECT_EQ(newBest, 8000);
 }
 
-TEST(OrderBookTest, CancelMiddleBidAtPrice) {
-    OrderBook book;
-    Order order{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 100
-    };
-    Order order2{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 100
-    };
-    Order order3{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 100
-    };
-    book.placeOrder(order);
-    book.placeOrder(order2);
-    book.placeOrder(order3);
-    EXPECT_EQ(book.size(), 3uz);
+TYPED_TEST(OrderBookTest, CancelMiddleBidAtPrice) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType order{ Side::Buy, 10000, 100 };
+    OrderType order2{ Side::Buy, 10000, 100 };
+    OrderType order3{ Side::Buy, 10000, 100 };
+    this->book.placeOrder(order);
+    this->book.placeOrder(order2);
+    this->book.placeOrder(order3);
+    EXPECT_EQ(this->book.size(), 3uz);
 
-    bool cancelled{ book.cancelOrder(order2.id) };
+    bool cancelled{ this->book.cancelOrder(order2.id) };
     EXPECT_TRUE(cancelled);
-    EXPECT_EQ(book.size(), 2uz);
+    EXPECT_EQ(this->book.size(), 2uz);
 
-    auto bids{ book.getBidsAtPrice(10000) };
+    auto bids{ this->book.getBidsAtPrice(10000) };
     ASSERT_FALSE(bids.empty());
     EXPECT_EQ(bids.size(), 2uz);
     EXPECT_EQ(bids.front().id, order.id);
 }
 
-TEST(OrderBookTest, CancelMiddleAskAtPrice) {
-    OrderBook book;
-    Order order{
-        .side = Side::Sell,
-        .price = 10000,
-        .quantity = 100
-    };
-    Order order2{
-        .side = Side::Sell,
-        .price = 10000,
-        .quantity = 100
-    };
-    Order order3{
-        .side = Side::Sell,
-        .price = 10000,
-        .quantity = 100
-    };
-    book.placeOrder(order);
-    book.placeOrder(order2);
-    book.placeOrder(order3);
-    EXPECT_EQ(book.size(), 3uz);
+TYPED_TEST(OrderBookTest, CancelMiddleAskAtPrice) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType order{ Side::Sell, 10000, 100 };
+    OrderType order2{ Side::Sell, 10000, 100 };
+    OrderType order3{ Side::Sell, 10000, 100 };
+    this->book.placeOrder(order);
+    this->book.placeOrder(order2);
+    this->book.placeOrder(order3);
+    EXPECT_EQ(this->book.size(), 3uz);
 
-    bool cancelled{ book.cancelOrder(order2.id) };
+    bool cancelled{ this->book.cancelOrder(order2.id) };
     EXPECT_TRUE(cancelled);
-    EXPECT_EQ(book.size(), 2uz);
+    EXPECT_EQ(this->book.size(), 2uz);
 
-    auto asks{ book.getAsksAtPrice(10000) };
+    auto asks{ this->book.getAsksAtPrice(10000) };
     ASSERT_FALSE(asks.empty());
     EXPECT_EQ(asks.size(), 2uz);
     EXPECT_EQ(asks.front().id, order.id);
 }
 
-TEST(OrderBookTest, AttemptMatchRestingBidAfterCancel) {
-    OrderBook book;
-    Order bid{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 100
-    };
-    Order ask{
-        .side = Side::Sell,
-        .price = 8000,
-        .quantity = 100
-    };
-    book.placeOrder(bid);
-    book.cancelOrder(bid.id);
-    book.placeOrder(ask);
-    EXPECT_EQ(book.size(), 1uz);
-    EXPECT_EQ(book.getBestSellPrice(), 8000);
+TYPED_TEST(OrderBookTest, AttemptMatchRestingBidAfterCancel) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType bid{ Side::Buy, 10000, 100 };
+    OrderType ask{ Side::Sell, 8000, 100 };
+    this->book.placeOrder(bid);
+    this->book.cancelOrder(bid.id);
+    this->book.placeOrder(ask);
+    EXPECT_EQ(this->book.size(), 1uz);
+    EXPECT_EQ(this->book.getBestSellPrice(), 8000);
 }
 
-TEST(OrderBookTest, AttemptMatchRestingAskAfterCancel) {
-    OrderBook book;
-    Order bid{
-        .side = Side::Buy,
-        .price = 10000,
-        .quantity = 100
-    };
-    Order ask{
-        .side = Side::Sell,
-        .price = 8000,
-        .quantity = 100
-    };
-    book.placeOrder(ask);
-    book.cancelOrder(ask.id);
-    book.placeOrder(bid);
-    EXPECT_EQ(book.size(), 1uz);
-    EXPECT_EQ(book.getBestBuyPrice(), 10000);
+TYPED_TEST(OrderBookTest, AttemptMatchRestingAskAfterCancel) {
+    using OrderType = typename TestFixture::OrderType;
+    OrderType bid{ Side::Buy, 10000, 100 };
+    OrderType ask{ Side::Sell, 8000, 100 };
+    this->book.placeOrder(ask);
+    this->book.cancelOrder(ask.id);
+    this->book.placeOrder(bid);
+    EXPECT_EQ(this->book.size(), 1uz);
+    EXPECT_EQ(this->book.getBestBuyPrice(), 10000);
 }

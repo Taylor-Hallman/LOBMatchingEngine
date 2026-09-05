@@ -5,8 +5,11 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(orderbook_lib 
-    src/OrderBook.cpp
-    src/Order.cpp
+    src/naive/OrderBook.cpp
+    src/naive/Order.cpp
+    src/optimized/OrderBook.cpp
+    src/optimized/Order.cpp
+    src/optimized/OrderPool.cpp
 )
 
 add_executable(orderbook_app src/main.cpp)

@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <print>
 
-std::atomic<uint64_t> Order::s_next_id{ 0 };
+namespace naive {
 
 void OrderBook::placeOrder(Order& incoming) {
     incoming.sequence = m_next_sequence++;
@@ -115,4 +115,6 @@ std::deque<Order> OrderBook::getAsksAtPrice(int64_t price) {
     if (!m_asks.contains(price))
         return {};
     return m_asks.at(price);
+}
+
 }

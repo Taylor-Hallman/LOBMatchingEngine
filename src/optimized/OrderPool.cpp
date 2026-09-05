@@ -9,6 +9,8 @@
  * the free slots themselves, saving space.
  */
 
+namespace optimized {
+
 OrderPool::OrderPool(size_t capacity) : m_available{ capacity }, m_slots(capacity, std::variant<Order, size_t>{std::in_place_index<1>, 0}) {
     std::iota(m_slots.begin(), m_slots.end() - 1, 1uz);
     m_slots[capacity - 1] = INVALID_IDX;
@@ -54,4 +56,6 @@ void OrderPool::reset() {
     m_slots[m_slots.size() - 1] = INVALID_IDX;
     m_available = m_slots.size();
     m_head = 0;
+}
+
 }

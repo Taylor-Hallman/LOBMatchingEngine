@@ -1,7 +1,11 @@
+#pragma once
+
 #include "optimized/Order.h"
 #include <cassert>
 #include <variant>
 #include <vector>
+
+namespace optimized {
 
 class OrderPool {
 private:
@@ -17,3 +21,5 @@ public:
     int available() const;
     void reset();
 };
+
+}

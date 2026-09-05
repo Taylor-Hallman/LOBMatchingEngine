@@ -1,5 +1,5 @@
-#include "OrderBook.h"
-#include "Order.h"
+#include "naive/OrderBook.h"
+#include "naive/Order.h"
 #include "util/OrderGenerator.h"
 
 #include <print>
@@ -7,13 +7,14 @@
 #include <chrono>
 
 int main() {
+    using namespace naive;
     using clock = std::chrono::steady_clock;
     std::chrono::nanoseconds total_work_time{ 0 };
 
     OrderBook orderBook;
     for (size_t i{}; i < 100uz; ++i) {
-        Order bid = GenerateOrder(Side::Buy);
-        Order ask = GenerateOrder(Side::Sell);
+        Order bid = GenerateOrder<Order>(Side::Buy);
+        Order ask = GenerateOrder<Order>(Side::Sell);
 
         auto start = clock::now();
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../naive/Order.h"
 #include <random>
 #include <print>
+#include "Side.h"
 
 inline int64_t randomNum(int64_t min, int64_t max) {
     std::random_device dev;
@@ -12,15 +12,12 @@ inline int64_t randomNum(int64_t min, int64_t max) {
     return dist(rng);
 }
 
+template<typename Order>
 inline Order GenerateOrder(Side side, int64_t priceFloor = 5000, int64_t priceCeiling = 15000, uint64_t quantityFloor = 1, uint64_t quantityCeiling = 100) {
     static uint64_t id{ UINT64_C(0) };
     int64_t price{ randomNum(priceFloor, priceCeiling) };
     uint64_t quantity{ static_cast<uint64_t>(randomNum(quantityFloor, quantityCeiling)) };
-    Order order{
-        .side = side,
-        .price = price,
-        .quantity = quantity,
-    };
+    Order order{ side, price, quantity };
     
     std::string sideTxt = side == Side::Buy ? "Buy" : "Sell";
     std::println(
@@ -35,7 +32,8 @@ inline Order GenerateOrder(Side side, int64_t priceFloor = 5000, int64_t priceCe
     return order;
 }
 
+template<typename Order>
 inline Order GenerateOrder(int64_t priceFloor = 5000, int64_t priceCeiling = 15000, uint64_t quantityFloor = 1, uint64_t quantityCeiling = 100) {
     Side side{ static_cast<Side>(randomNum(0, 1)) };
-    return GenerateOrder(side, priceFloor, priceCeiling, quantityFloor, quantityCeiling);
+    return GenerateOrder<Order>(side, priceFloor, priceCeiling, quantityFloor, quantityCeiling);
 }
