@@ -15,13 +15,17 @@ class OrderBook {
 public:
     using OrderType = Order; // optimized::Order
 private:
+    struct OrderList {
+        size_t head, tail;
+    };
+
     OrderPool m_orderPool;
     
     std::unordered_map<uint64_t, size_t> m_orderLocations;
 
     // We will allocate the entire price range up front.
     // This sacrifices memory for cache locality
-    std::vector<size_t> m_bids, m_asks;
+    std::vector<OrderList> m_bids, m_asks;
 
     // Bitmap to help search through orders at price points faster
     std::vector<uint64_t> m_bidOccupancy, m_askOccupancy;

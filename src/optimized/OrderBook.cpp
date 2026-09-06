@@ -7,8 +7,8 @@ namespace optimized {
 
 OrderBook::OrderBook() : 
     m_orderPool(POOL_SIZE), 
-    m_bids(MAX_PRICE, INVALID_IDX), 
-    m_asks(MAX_PRICE, INVALID_IDX), 
+    m_bids(MAX_PRICE, OrderList{ INVALID_IDX, INVALID_IDX }), 
+    m_asks(MAX_PRICE, OrderList{ INVALID_IDX, INVALID_IDX }), 
     m_bidOccupancy(OCCUPANCY_SIZE, 0), 
     m_askOccupancy(OCCUPANCY_SIZE, 0) 
 {}
@@ -29,7 +29,7 @@ bool OrderBook::releaseOrder(size_t orderIdx) {
 
     if (order.next == INVALID_IDX && order.prev == INVALID_IDX) {
         // Reset this price point to invalid in the vector
-        side[order.price] = INVALID_IDX;
+        side[order.price] = { INVALID_IDX, INVALID_IDX };
 
         // zero out bit flag
         size_t occupIdx{ order.price / WORD_SIZE };
@@ -46,7 +46,7 @@ bool OrderBook::releaseOrder(size_t orderIdx) {
                         auto zeros{ std::countr_zero(occupancy[i]) };
                         if (zeros < WORD_SIZE) {
                             auto newPrice{ i * WORD_SIZE + zeros };
-                            bestIdx = side[newPrice];
+                            bestIdx = side[newPrice].head;
                             found = true;
                             break;
                         }
@@ -56,7 +56,7 @@ bool OrderBook::releaseOrder(size_t orderIdx) {
                         auto zeros{ std::countr_zero(occupancy[i]) };
                         if (zeros < WORD_SIZE) {
                             auto newPrice{ i * WORD_SIZE + zeros };
-                            bestIdx = side[newPrice];
+                            bestIdx = side[newPrice].head;
                             found = true;
                             break;
                         }
@@ -73,14 +73,18 @@ bool OrderBook::releaseOrder(size_t orderIdx) {
             Order* prev{ m_orderPool.get(order.prev) };
             prev->next = order.next;
         }
+        else {
+            side[order.price].head = order.next;
+        }
         if (order.next != INVALID_IDX) {
             Order* next{ m_orderPool.get(order.next) };
             next->prev = order.prev;
         }
-        size_t newIdx = order.prev == INVALID_IDX ? order.next : order.prev;
-        side[order.price] = newIdx;
+        else {
+            side[order.price].tail = order.prev;
+        }
         if (orderIdx == bestIdx)
-            bestIdx = newIdx;
+            bestIdx = order.prev == INVALID_IDX ? order.next : order.prev;
     }
     return true;
 }
@@ -124,22 +128,19 @@ void OrderBook::placeOrder(Order& incoming) {
 
 
     // If we already have an order with this price, append to the end of the list for that price
-    if (incomingSide[incoming.price] != INVALID_IDX) {
-        size_t otherIdx{ incomingSide[incoming.price] };
-        Order* other{m_orderPool.get(incomingSide[incoming.price])};
+    if (incomingSide[incoming.price].head != INVALID_IDX || incomingSide[incoming.price].tail != INVALID_IDX) {
+        size_t otherIdx{ incomingSide[incoming.price].tail };
+        Order* other{m_orderPool.get(otherIdx)};
         assert(other != nullptr);
-        while (other->next != INVALID_IDX) {
-            otherIdx = other->next;
-            other = m_orderPool.get(other->next);
-        }
         other->next = idx;
 
         Order* incomingPtr{ m_orderPool.get(idx) };
         incomingPtr->prev = otherIdx;
+        incomingSide[incoming.price].tail = idx;
     }
     else {
         // Insert order at this price point
-        incomingSide[incoming.price] = idx;
+        incomingSide[incoming.price] = { idx, idx };
 
         // Update best bid/ask if incoming order is better
         Order* best{ m_orderPool.get(bestIdxIncomingSide) };
@@ -164,8 +165,8 @@ bool OrderBook::cancelOrder(uint64_t id) {
 void OrderBook::clear() {
     m_orderLocations.clear();
     m_orderPool.reset();
-    std::fill(m_bids.begin(), m_bids.end(), INVALID_IDX);
-    std::fill(m_asks.begin(), m_asks.end(), INVALID_IDX);
+    std::fill(m_bids.begin(), m_bids.end(), OrderList{ INVALID_IDX, INVALID_IDX });
+    std::fill(m_asks.begin(), m_asks.end(), OrderList{ INVALID_IDX, INVALID_IDX });
     std::fill(m_bidOccupancy.begin(), m_bidOccupancy.end(), UINT64_C(0));
     std::fill(m_askOccupancy.begin(), m_askOccupancy.end(), UINT64_C(0));
     m_bestBid = INVALID_IDX;
@@ -192,14 +193,14 @@ int64_t OrderBook::getBestSellPrice() {
 
 std::deque<Order> OrderBook::getBidsAtPrice(int64_t price) {
     std::deque<Order> bids;
-    for (Order* bid = m_orderPool.get(m_bids[price]); bid != nullptr; bid = m_orderPool.get(bid->next))
+    for (Order* bid = m_orderPool.get(m_bids[price].head); bid != nullptr; bid = m_orderPool.get(bid->next))
         bids.push_back(*bid);
     return bids;
 }
 
 std::deque<Order> OrderBook::getAsksAtPrice(int64_t price) {
     std::deque<Order> asks;
-    for (Order* ask = m_orderPool.get(m_asks[price]); ask != nullptr; ask = m_orderPool.get(ask->next))
+    for (Order* ask = m_orderPool.get(m_asks[price].head); ask != nullptr; ask = m_orderPool.get(ask->next))
         asks.push_back(*ask);
     return asks;
 }
