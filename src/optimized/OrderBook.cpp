@@ -95,7 +95,6 @@ void OrderBook::placeOrder(Order& incoming) {
     auto& incomingSide = incoming.side == Side::Buy ? m_bids : m_asks;
     auto& restingSide = incoming.side == Side::Buy ? m_asks : m_bids;
     auto& incOccupancy = incoming.side == Side::Buy ? m_bidOccupancy : m_askOccupancy;
-    auto& restOccupancy = incoming.side == Side::Buy ? m_askOccupancy : m_bidOccupancy;
 
     auto crosses = incoming.side == Side::Buy
         ? [](int64_t incomingPrice, int64_t restingPrice) { return incomingPrice >= restingPrice; }
@@ -125,7 +124,6 @@ void OrderBook::placeOrder(Order& incoming) {
     size_t idx{ m_orderPool.allocate(incoming) };
 
     m_orderLocations[incoming.id] = idx;
-
 
     // If we already have an order with this price, append to the end of the list for that price
     if (incomingSide[incoming.price].head != INVALID_IDX || incomingSide[incoming.price].tail != INVALID_IDX) {
@@ -162,6 +160,12 @@ bool OrderBook::cancelOrder(uint64_t id) {
     return releaseOrder(m_orderLocations.at(id));
 }
 
+/* clear() is quite slow: O(POOL_CAPACITY + MAX_PRICE) regardless of how many orders
+ * are currently being tracked. This could be improved by keeping track of used slots
+ * and only releasing those, but because clear() is not on the hot path and would very
+ * rarely be called in a real production environment, there is little to be gained by
+ * optimizing it.
+ */
 void OrderBook::clear() {
     m_orderLocations.clear();
     m_orderPool.reset();

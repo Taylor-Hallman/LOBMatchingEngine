@@ -43,7 +43,7 @@ void OrderBook::processMatch(Order& incoming, Order& resting) {
     auto temp{ incoming.remaining_qty };
     incoming.remaining_qty = std::max(INT64_C(0), incoming.remaining_qty - resting.remaining_qty);
     resting.remaining_qty = std::max(INT64_C(0), resting.remaining_qty - temp);
-    std::println("Matched order {0} with order {1}. Traded {2} options for ${3}.{4}", 
+    /*std::println("Matched order {0} with order {1}. Traded {2} options for ${3}.{4}", 
             incoming.id,
             resting.id,
             amt,
@@ -51,7 +51,7 @@ void OrderBook::processMatch(Order& incoming, Order& resting) {
             (amt * resting.price) % INT64_C(100)
         );
     incoming.LogRemainingQty();
-    resting.LogRemainingQty();
+    resting.LogRemainingQty();*/
 }
 
 // Slow!
