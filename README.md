@@ -160,886 +160,497 @@ sudo cpupower frequency-set --governor performance
 | `depth` | Number of resting orders in the book at the time of measurement. |
 | `match_pct` | (`MixedTraffic` only) Target percentage of incoming orders that cross and match against the book; the remainder rest as new orders. |
 
-<details> <summary><strong>Full benchmark results (click to expand)</strong></summary>
+<details>
+<summary><strong>Full benchmark results (click to expand)</strong></summary>
 
-Each benchmark below is its own collapsible table, grouped by function. "Variant" reflects the labels from the key above.
+Each benchmark below is its own collapsible table, grouped by function.
+"Variant" reflects the labels from the key above.
 
-<details> <summary><code>BM_PlaceOrder_NoMatch_Bids</code></summary>
-Implementation	Variant	Depth	Time
-naive	narrow_range	100	66.8 ns
-naive	narrow_range	1,000	78.8 ns
-naive	narrow_range	10,000	64.4 ns
-naive	narrow_range	100,000	53.8 ns
-naive	narrow_range	1,000,000	62.3 ns
-naive	wide_range	100	64.8 ns
-naive	wide_range	1,000	85.6 ns
-naive	wide_range	10,000	151.0 ns
-naive	wide_range	100,000	477.0 ns
-naive	wide_range	1,000,000	438.0 ns
-optimized	narrow_range	100	16.6 ns
-optimized	narrow_range	1,000	15.7 ns
-optimized	narrow_range	10,000	18.8 ns
-optimized	narrow_range	100,000	20.8 ns
-optimized	narrow_range	1,000,000	25.6 ns
-optimized	wide_range	100	57.2 ns
-optimized	wide_range	1,000	49.7 ns
-optimized	wide_range	10,000	42.2 ns
-optimized	wide_range	100,000	59.9 ns
-optimized	wide_range	1,000,000	112.0 ns
-</details> <details> <summary><code>BM_PlaceOrder_NoMatch_Asks</code></summary>
-Implementation	Variant	Depth	Time
-naive	narrow_range	100	63.1 ns
-naive	narrow_range	1,000	85.1 ns
-naive	narrow_range	10,000	64.3 ns
-naive	narrow_range	100,000	52.5 ns
-naive	narrow_range	1,000,000	56.5 ns
-naive	wide_range	100	64.1 ns
-naive	wide_range	1,000	85.1 ns
-naive	wide_range	10,000	153.0 ns
-naive	wide_range	100,000	428.0 ns
-naive	wide_range	1,000,000	413.0 ns
-optimized	narrow_range	100	16.3 ns
-optimized	narrow_range	1,000	15.4 ns
-optimized	narrow_range	10,000	18.4 ns
-optimized	narrow_range	100,000	20.9 ns
-optimized	narrow_range	1,000,000	25.9 ns
-optimized	wide_range	100	57.2 ns
-optimized	wide_range	1,000	48.8 ns
-optimized	wide_range	10,000	42.6 ns
-optimized	wide_range	100,000	59.6 ns
-optimized	wide_range	1,000,000	110.0 ns
-</details> <details> <summary><code>BM_PlaceOrder_AlwaysMatch_BidsResting</code></summary>
-Implementation	Variant	Depth	Time
-naive	varied_qty	100	37.8 ns
-naive	varied_qty	1,000	37.1 ns
-naive	varied_qty	10,000	29.4 ns
-naive	varied_qty	100,000	16.5 ns
-naive	varied_qty	1,000,000	25.5 ns
-naive	fixed_qty	100	29.8 ns
-naive	fixed_qty	1,000	26.9 ns
-naive	fixed_qty	10,000	21.6 ns
-naive	fixed_qty	100,000	10.1 ns
-naive	fixed_qty	1,000,000	19.8 ns
-optimized	varied_qty	100	37.7 ns
-optimized	varied_qty	1,000	30.8 ns
-optimized	varied_qty	10,000	34.2 ns
-optimized	varied_qty	100,000	65.0 ns
-optimized	varied_qty	1,000,000	239.0 ns
-optimized	fixed_qty	100	30.6 ns
-optimized	fixed_qty	1,000	22.7 ns
-optimized	fixed_qty	10,000	27.3 ns
-optimized	fixed_qty	100,000	56.9 ns
-optimized	fixed_qty	1,000,000	219.0 ns
-</details> <details> <summary><code>BM_PlaceOrder_AlwaysMatch_AsksResting</code></summary>
-Implementation	Variant	Depth	Time
-naive	varied_qty	100	38.2 ns
-naive	varied_qty	1,000	36.9 ns
-naive	varied_qty	10,000	29.8 ns
-naive	varied_qty	100,000	16.6 ns
-naive	varied_qty	1,000,000	25.6 ns
-naive	fixed_qty	100	29.7 ns
-naive	fixed_qty	1,000	28.5 ns
-naive	fixed_qty	10,000	21.7 ns
-naive	fixed_qty	100,000	9.7 ns
-naive	fixed_qty	1,000,000	19.8 ns
-optimized	varied_qty	100	59.8 ns
-optimized	varied_qty	1,000	32.5 ns
-optimized	varied_qty	10,000	34.1 ns
-optimized	varied_qty	100,000	64.3 ns
-optimized	varied_qty	1,000,000	238.0 ns
-optimized	fixed_qty	100	74.6 ns
-optimized	fixed_qty	1,000	29.1 ns
-optimized	fixed_qty	10,000	27.5 ns
-optimized	fixed_qty	100,000	61.5 ns
-optimized	fixed_qty	1,000,000	225.0 ns
-</details> <details> <summary><code>BM_PlaceOrder_MixedTraffic_BidsResting</code></summary>
-Implementation	Variant	Depth	Match %	Time
-naive	narrow_range varied_qty	100	0%	61.4 ns
-naive	narrow_range varied_qty	1,000	0%	79.8 ns
-naive	narrow_range varied_qty	10,000	0%	102.0 ns
-naive	narrow_range varied_qty	100,000	0%	168.0 ns
-naive	narrow_range varied_qty	1,000,000	0%	175.0 ns
-naive	narrow_range varied_qty	100	30%	48.7 ns
-naive	narrow_range varied_qty	1,000	30%	59.4 ns
-naive	narrow_range varied_qty	10,000	30%	73.0 ns
-naive	narrow_range varied_qty	100,000	30%	105.0 ns
-naive	narrow_range varied_qty	1,000,000	30%	105.0 ns
-naive	narrow_range varied_qty	100	70%	27.1 ns
-naive	narrow_range varied_qty	1,000	70%	31.5 ns
-naive	narrow_range varied_qty	10,000	70%	35.4 ns
-naive	narrow_range varied_qty	100,000	70%	42.2 ns
-naive	narrow_range varied_qty	1,000,000	70%	41.1 ns
-naive	narrow_range varied_qty	100	100%	13.2 ns
-naive	narrow_range varied_qty	1,000	100%	11.6 ns
-naive	narrow_range varied_qty	10,000	100%	10.8 ns
-naive	narrow_range varied_qty	100,000	100%	10.4 ns
-naive	narrow_range varied_qty	1,000,000	100%	10.8 ns
-naive	narrow_range fixed_qty	100	0%	60.4 ns
-naive	narrow_range fixed_qty	1,000	0%	79.9 ns
-naive	narrow_range fixed_qty	10,000	0%	101.0 ns
-naive	narrow_range fixed_qty	100,000	0%	164.0 ns
-naive	narrow_range fixed_qty	1,000,000	0%	175.0 ns
-naive	narrow_range fixed_qty	100	30%	44.0 ns
-naive	narrow_range fixed_qty	1,000	30%	57.4 ns
-naive	narrow_range fixed_qty	10,000	30%	71.8 ns
-naive	narrow_range fixed_qty	100,000	30%	105.0 ns
-naive	narrow_range fixed_qty	1,000,000	30%	102.0 ns
-naive	narrow_range fixed_qty	100	70%	22.5 ns
-naive	narrow_range fixed_qty	1,000	70%	27.2 ns
-naive	narrow_range fixed_qty	10,000	70%	31.1 ns
-naive	narrow_range fixed_qty	100,000	70%	38.0 ns
-naive	narrow_range fixed_qty	1,000,000	70%	36.3 ns
-naive	narrow_range fixed_qty	100	100%	5.7 ns
-naive	narrow_range fixed_qty	1,000	100%	4.5 ns
-naive	narrow_range fixed_qty	10,000	100%	4.2 ns
-naive	narrow_range fixed_qty	100,000	100%	4.2 ns
-naive	narrow_range fixed_qty	1,000,000	100%	6.1 ns
-naive	wide_range varied_qty	100	0%	61.3 ns
-naive	wide_range varied_qty	1,000	0%	79.6 ns
-naive	wide_range varied_qty	10,000	0%	103.0 ns
-naive	wide_range varied_qty	100,000	0%	213.0 ns
-naive	wide_range varied_qty	1,000,000	0%	609.0 ns
-naive	wide_range varied_qty	100	30%	47.1 ns
-naive	wide_range varied_qty	1,000	30%	59.4 ns
-naive	wide_range varied_qty	10,000	30%	74.1 ns
-naive	wide_range varied_qty	100,000	30%	137.0 ns
-naive	wide_range varied_qty	1,000,000	30%	314.0 ns
-naive	wide_range varied_qty	100	70%	27.6 ns
-naive	wide_range varied_qty	1,000	70%	31.6 ns
-naive	wide_range varied_qty	10,000	70%	36.0 ns
-naive	wide_range varied_qty	100,000	70%	52.0 ns
-naive	wide_range varied_qty	1,000,000	70%	106.0 ns
-naive	wide_range varied_qty	100	100%	13.0 ns
-naive	wide_range varied_qty	1,000	100%	11.6 ns
-naive	wide_range varied_qty	10,000	100%	10.9 ns
-naive	wide_range varied_qty	100,000	100%	10.5 ns
-naive	wide_range varied_qty	1,000,000	100%	10.9 ns
-naive	wide_range fixed_qty	100	0%	59.1 ns
-naive	wide_range fixed_qty	1,000	0%	80.2 ns
-naive	wide_range fixed_qty	10,000	0%	103.0 ns
-naive	wide_range fixed_qty	100,000	0%	221.0 ns
-naive	wide_range fixed_qty	1,000,000	0%	569.0 ns
-naive	wide_range fixed_qty	100	30%	45.4 ns
-naive	wide_range fixed_qty	1,000	30%	57.6 ns
-naive	wide_range fixed_qty	10,000	30%	72.3 ns
-naive	wide_range fixed_qty	100,000	30%	136.0 ns
-naive	wide_range fixed_qty	1,000,000	30%	307.0 ns
-naive	wide_range fixed_qty	100	70%	23.1 ns
-naive	wide_range fixed_qty	1,000	70%	27.2 ns
-naive	wide_range fixed_qty	10,000	70%	31.7 ns
-naive	wide_range fixed_qty	100,000	70%	47.0 ns
-naive	wide_range fixed_qty	1,000,000	70%	100.0 ns
-naive	wide_range fixed_qty	100	100%	5.8 ns
-naive	wide_range fixed_qty	1,000	100%	4.6 ns
-naive	wide_range fixed_qty	10,000	100%	5.1 ns
-naive	wide_range fixed_qty	100,000	100%	5.1 ns
-naive	wide_range fixed_qty	1,000,000	100%	6.2 ns
-optimized	narrow_range varied_qty	100	0%	19.3 ns
-optimized	narrow_range varied_qty	1,000	0%	15.7 ns
-optimized	narrow_range varied_qty	10,000	0%	17.3 ns
-optimized	narrow_range varied_qty	100,000	0%	29.8 ns
-optimized	narrow_range varied_qty	1,000,000	0%	53.6 ns
-optimized	narrow_range varied_qty	100	30%	23.5 ns
-optimized	narrow_range varied_qty	1,000	30%	20.9 ns
-optimized	narrow_range varied_qty	10,000	30%	22.8 ns
-optimized	narrow_range varied_qty	100,000	30%	32.0 ns
-optimized	narrow_range varied_qty	1,000,000	30%	51.1 ns
-optimized	narrow_range varied_qty	100	70%	30.3 ns
-optimized	narrow_range varied_qty	1,000	70%	26.9 ns
-optimized	narrow_range varied_qty	10,000	70%	28.3 ns
-optimized	narrow_range varied_qty	100,000	70%	40.0 ns
-optimized	narrow_range varied_qty	1,000,000	70%	77.4 ns
-optimized	narrow_range varied_qty	100	100%	30.6 ns
-optimized	narrow_range varied_qty	1,000	100%	23.8 ns
-optimized	narrow_range varied_qty	10,000	100%	23.1 ns
-optimized	narrow_range varied_qty	100,000	100%	23.0 ns
-optimized	narrow_range varied_qty	1,000,000	100%	23.1 ns
-optimized	narrow_range fixed_qty	100	0%	18.6 ns
-optimized	narrow_range fixed_qty	1,000	0%	15.7 ns
-optimized	narrow_range fixed_qty	10,000	0%	17.3 ns
-optimized	narrow_range fixed_qty	100,000	0%	29.8 ns
-optimized	narrow_range fixed_qty	1,000,000	0%	53.8 ns
-optimized	narrow_range fixed_qty	100	30%	21.6 ns
-optimized	narrow_range fixed_qty	1,000	30%	18.6 ns
-optimized	narrow_range fixed_qty	10,000	30%	20.8 ns
-optimized	narrow_range fixed_qty	100,000	30%	29.2 ns
-optimized	narrow_range fixed_qty	1,000,000	30%	48.4 ns
-optimized	narrow_range fixed_qty	100	70%	25.5 ns
-optimized	narrow_range fixed_qty	1,000	70%	20.4 ns
-optimized	narrow_range fixed_qty	10,000	70%	22.4 ns
-optimized	narrow_range fixed_qty	100,000	70%	35.4 ns
-optimized	narrow_range fixed_qty	1,000,000	70%	76.2 ns
-optimized	narrow_range fixed_qty	100	100%	27.5 ns
-optimized	narrow_range fixed_qty	1,000	100%	15.1 ns
-optimized	narrow_range fixed_qty	10,000	100%	14.4 ns
-optimized	narrow_range fixed_qty	100,000	100%	14.6 ns
-optimized	narrow_range fixed_qty	1,000,000	100%	14.9 ns
-optimized	wide_range varied_qty	100	0%	60.0 ns
-optimized	wide_range varied_qty	1,000	0%	54.3 ns
-optimized	wide_range varied_qty	10,000	0%	49.2 ns
-optimized	wide_range varied_qty	100,000	0%	61.1 ns
-optimized	wide_range varied_qty	1,000,000	0%	83.5 ns
-optimized	wide_range varied_qty	100	30%	51.6 ns
-optimized	wide_range varied_qty	1,000	30%	45.9 ns
-optimized	wide_range varied_qty	10,000	30%	36.1 ns
-optimized	wide_range varied_qty	100,000	30%	48.4 ns
-optimized	wide_range varied_qty	1,000,000	30%	69.4 ns
-optimized	wide_range varied_qty	100	70%	40.8 ns
-optimized	wide_range varied_qty	1,000	70%	35.5 ns
-optimized	wide_range varied_qty	10,000	70%	33.6 ns
-optimized	wide_range varied_qty	100,000	70%	47.1 ns
-optimized	wide_range varied_qty	1,000,000	70%	74.4 ns
-optimized	wide_range varied_qty	100	100%	52.9 ns
-optimized	wide_range varied_qty	1,000	100%	26.2 ns
-optimized	wide_range varied_qty	10,000	100%	23.8 ns
-optimized	wide_range varied_qty	100,000	100%	23.5 ns
-optimized	wide_range varied_qty	1,000,000	100%	23.5 ns
-optimized	wide_range fixed_qty	100	0%	60.1 ns
-optimized	wide_range fixed_qty	1,000	0%	54.0 ns
-optimized	wide_range fixed_qty	10,000	0%	48.5 ns
-optimized	wide_range fixed_qty	100,000	0%	61.5 ns
-optimized	wide_range fixed_qty	1,000,000	0%	85.7 ns
-optimized	wide_range fixed_qty	100	30%	51.2 ns
-optimized	wide_range fixed_qty	1,000	30%	44.8 ns
-optimized	wide_range fixed_qty	10,000	30%	33.2 ns
-optimized	wide_range fixed_qty	100,000	30%	46.1 ns
-optimized	wide_range fixed_qty	1,000,000	30%	67.8 ns
-optimized	wide_range fixed_qty	100	70%	36.5 ns
-optimized	wide_range fixed_qty	1,000	70%	29.2 ns
-optimized	wide_range fixed_qty	10,000	70%	26.7 ns
-optimized	wide_range fixed_qty	100,000	70%	40.8 ns
-optimized	wide_range fixed_qty	1,000,000	70%	76.8 ns
-optimized	wide_range fixed_qty	100	100%	66.5 ns
-optimized	wide_range fixed_qty	1,000	100%	19.0 ns
-optimized	wide_range fixed_qty	10,000	100%	14.7 ns
-optimized	wide_range fixed_qty	100,000	100%	14.5 ns
-optimized	wide_range fixed_qty	1,000,000	100%	14.8 ns
-</details> <details> <summary><code>BM_PlaceOrder_MixedTraffic_AsksResting</code></summary>
-Implementation	Variant	Depth	Match %	Time
-naive	narrow_range varied_qty	100	0%	62.4 ns
-naive	narrow_range varied_qty	1,000	0%	79.3 ns
-naive	narrow_range varied_qty	10,000	0%	101.0 ns
-naive	narrow_range varied_qty	100,000	0%	166.0 ns
-naive	narrow_range varied_qty	1,000,000	0%	174.0 ns
-naive	narrow_range varied_qty	100	30%	46.4 ns
-naive	narrow_range varied_qty	1,000	30%	58.9 ns
-naive	narrow_range varied_qty	10,000	30%	72.3 ns
-naive	narrow_range varied_qty	100,000	30%	105.0 ns
-naive	narrow_range varied_qty	1,000,000	30%	104.0 ns
-naive	narrow_range varied_qty	100	70%	26.5 ns
-naive	narrow_range varied_qty	1,000	70%	31.3 ns
-naive	narrow_range varied_qty	10,000	70%	35.1 ns
-naive	narrow_range varied_qty	100,000	70%	42.3 ns
-naive	narrow_range varied_qty	1,000,000	70%	41.1 ns
-naive	narrow_range varied_qty	100	100%	13.3 ns
-naive	narrow_range varied_qty	1,000	100%	11.8 ns
-naive	narrow_range varied_qty	10,000	100%	10.9 ns
-naive	narrow_range varied_qty	100,000	100%	10.7 ns
-naive	narrow_range varied_qty	1,000,000	100%	11.1 ns
-naive	narrow_range fixed_qty	100	0%	61.6 ns
-naive	narrow_range fixed_qty	1,000	0%	79.5 ns
-naive	narrow_range fixed_qty	10,000	0%	102.0 ns
-naive	narrow_range fixed_qty	100,000	0%	166.0 ns
-naive	narrow_range fixed_qty	1,000,000	0%	166.0 ns
-naive	narrow_range fixed_qty	100	30%	43.4 ns
-naive	narrow_range fixed_qty	1,000	30%	57.1 ns
-naive	narrow_range fixed_qty	10,000	30%	70.5 ns
-naive	narrow_range fixed_qty	100,000	30%	103.0 ns
-naive	narrow_range fixed_qty	1,000,000	30%	99.9 ns
-naive	narrow_range fixed_qty	100	70%	22.0 ns
-naive	narrow_range fixed_qty	1,000	70%	27.0 ns
-naive	narrow_range fixed_qty	10,000	70%	30.9 ns
-naive	narrow_range fixed_qty	100,000	70%	38.5 ns
-naive	narrow_range fixed_qty	1,000,000	70%	35.8 ns
-naive	narrow_range fixed_qty	100	100%	5.9 ns
-naive	narrow_range fixed_qty	1,000	100%	4.4 ns
-naive	narrow_range fixed_qty	10,000	100%	4.2 ns
-naive	narrow_range fixed_qty	100,000	100%	4.4 ns
-naive	narrow_range fixed_qty	1,000,000	100%	6.1 ns
-naive	wide_range varied_qty	100	0%	61.6 ns
-naive	wide_range varied_qty	1,000	0%	79.8 ns
-naive	wide_range varied_qty	10,000	0%	103.0 ns
-naive	wide_range varied_qty	100,000	0%	212.0 ns
-naive	wide_range varied_qty	1,000,000	0%	590.0 ns
-naive	wide_range varied_qty	100	30%	45.7 ns
-naive	wide_range varied_qty	1,000	30%	59.0 ns
-naive	wide_range varied_qty	10,000	30%	74.0 ns
-naive	wide_range varied_qty	100,000	30%	139.0 ns
-naive	wide_range varied_qty	1,000,000	30%	315.0 ns
-naive	wide_range varied_qty	100	70%	26.1 ns
-naive	wide_range varied_qty	1,000	70%	31.4 ns
-naive	wide_range varied_qty	10,000	70%	35.7 ns
-naive	wide_range varied_qty	100,000	70%	51.9 ns
-naive	wide_range varied_qty	1,000,000	70%	105.0 ns
-naive	wide_range varied_qty	100	100%	13.3 ns
-naive	wide_range varied_qty	1,000	100%	11.8 ns
-naive	wide_range varied_qty	10,000	100%	10.9 ns
-naive	wide_range varied_qty	100,000	100%	10.7 ns
-naive	wide_range varied_qty	1,000,000	100%	11.2 ns
-naive	wide_range fixed_qty	100	0%	61.6 ns
-naive	wide_range fixed_qty	1,000	0%	79.7 ns
-naive	wide_range fixed_qty	10,000	0%	104.0 ns
-naive	wide_range fixed_qty	100,000	0%	216.0 ns
-naive	wide_range fixed_qty	1,000,000	0%	605.0 ns
-naive	wide_range fixed_qty	100	30%	45.3 ns
-naive	wide_range fixed_qty	1,000	30%	57.2 ns
-naive	wide_range fixed_qty	10,000	30%	72.0 ns
-naive	wide_range fixed_qty	100,000	30%	136.0 ns
-naive	wide_range fixed_qty	1,000,000	30%	317.0 ns
-naive	wide_range fixed_qty	100	70%	22.0 ns
-naive	wide_range fixed_qty	1,000	70%	27.0 ns
-naive	wide_range fixed_qty	10,000	70%	31.4 ns
-naive	wide_range fixed_qty	100,000	70%	46.8 ns
-naive	wide_range fixed_qty	1,000,000	70%	98.2 ns
-naive	wide_range fixed_qty	100	100%	5.8 ns
-naive	wide_range fixed_qty	1,000	100%	4.4 ns
-naive	wide_range fixed_qty	10,000	100%	4.2 ns
-naive	wide_range fixed_qty	100,000	100%	4.3 ns
-naive	wide_range fixed_qty	1,000,000	100%	6.1 ns
-optimized	narrow_range varied_qty	100	0%	20.1 ns
-optimized	narrow_range varied_qty	1,000	0%	16.4 ns
-optimized	narrow_range varied_qty	10,000	0%	17.7 ns
-optimized	narrow_range varied_qty	100,000	0%	31.4 ns
-optimized	narrow_range varied_qty	1,000,000	0%	54.1 ns
-optimized	narrow_range varied_qty	100	30%	23.7 ns
-optimized	narrow_range varied_qty	1,000	30%	21.1 ns
-optimized	narrow_range varied_qty	10,000	30%	22.8 ns
-optimized	narrow_range varied_qty	100,000	30%	32.2 ns
-optimized	narrow_rang<details> <summary><strong>Full benchmark results (click to expand)</strong></summary>
+<details>
+<summary><code>BM_PlaceOrder_NoMatch_Bids</code></summary>
 
-Each benchmark below is its own collapsible table, grouped by function. "Variant" reflects the labels from the key above.
-<details> <summary><code>BM_PlaceOrder_NoMatch_Bids</code></summary>
-Implementation	Variant	Depth	Time
-naive	narrow_range	100	66.8 ns
-naive	narrow_range	1,000	78.8 ns
-naive	narrow_range	10,000	64.4 ns
-naive	narrow_range	100,000	53.8 ns
-naive	narrow_range	1,000,000	62.3 ns
-naive	wide_range	100	64.8 ns
-naive	wide_range	1,000	85.6 ns
-naive	wide_range	10,000	151.0 ns
-naive	wide_range	100,000	477.0 ns
-naive	wide_range	1,000,000	438.0 ns
-optimized	narrow_range	100	16.6 ns
-optimized	narrow_range	1,000	15.7 ns
-optimized	narrow_range	10,000	18.8 ns
-optimized	narrow_range	100,000	20.8 ns
-optimized	narrow_range	1,000,000	25.6 ns
-optimized	wide_range	100	57.2 ns
-optimized	wide_range	1,000	49.7 ns
-optimized	wide_range	10,000	42.2 ns
-optimized	wide_range	100,000	59.9 ns
-optimized	wide_range	1,000,000	112.0 ns
-</details> <details> <summary><code>BM_PlaceOrder_NoMatch_Asks</code></summary>
-Implementation	Variant	Depth	Time
-naive	narrow_range	100	63.1 ns
-naive	narrow_range	1,000	85.1 ns
-naive	narrow_range	10,000	64.3 ns
-naive	narrow_range	100,000	52.5 ns
-naive	narrow_range	1,000,000	56.5 ns
-naive	wide_range	100	64.1 ns
-naive	wide_range	1,000	85.1 ns
-naive	wide_range	10,000	153.0 ns
-naive	wide_range	100,000	428.0 ns
-naive	wide_range	1,000,000	413.0 ns
-optimized	narrow_range	100	16.3 ns
-optimized	narrow_range	1,000	15.4 ns
-optimized	narrow_range	10,000	18.4 ns
-optimized	narrow_range	100,000	20.9 ns
-optimized	narrow_range	1,000,000	25.9 ns
-optimized	wide_range	100	57.2 ns
-optimized	wide_range	1,000	48.8 ns
-optimized	wide_range	10,000	42.6 ns
-optimized	wide_range	100,000	59.6 ns
-optimized	wide_range	1,000,000	110.0 ns
-</details> <details> <summary><code>BM_PlaceOrder_AlwaysMatch_BidsResting</code></summary>
-Implementation	Variant	Depth	Time
-naive	varied_qty	100	37.8 ns
-naive	varied_qty	1,000	37.1 ns
-naive	varied_qty	10,000	29.4 ns
-naive	varied_qty	100,000	16.5 ns
-naive	varied_qty	1,000,000	25.5 ns
-naive	fixed_qty	100	29.8 ns
-naive	fixed_qty	1,000	26.9 ns
-naive	fixed_qty	10,000	21.6 ns
-naive	fixed_qty	100,000	10.1 ns
-naive	fixed_qty	1,000,000	19.8 ns
-optimized	varied_qty	100	37.7 ns
-optimized	varied_qty	1,000	30.8 ns
-optimized	varied_qty	10,000	34.2 ns
-optimized	varied_qty	100,000	65.0 ns
-optimized	varied_qty	1,000,000	239.0 ns
-optimized	fixed_qty	100	30.6 ns
-optimized	fixed_qty	1,000	22.7 ns
-optimized	fixed_qty	10,000	27.3 ns
-optimized	fixed_qty	100,000	56.9 ns
-optimized	fixed_qty	1,000,000	219.0 ns
-</details> <details> <summary><code>BM_PlaceOrder_AlwaysMatch_AsksResting</code></summary>
-Implementation	Variant	Depth	Time
-naive	varied_qty	100	38.2 ns
-naive	varied_qty	1,000	36.9 ns
-naive	varied_qty	10,000	29.8 ns
-naive	varied_qty	100,000	16.6 ns
-naive	varied_qty	1,000,000	25.6 ns
-naive	fixed_qty	100	29.7 ns
-naive	fixed_qty	1,000	28.5 ns
-naive	fixed_qty	10,000	21.7 ns
-naive	fixed_qty	100,000	9.7 ns
-naive	fixed_qty	1,000,000	19.8 ns
-optimized	varied_qty	100	59.8 ns
-optimized	varied_qty	1,000	32.5 ns
-optimized	varied_qty	10,000	34.1 ns
-optimized	varied_qty	100,000	64.3 ns
-optimized	varied_qty	1,000,000	238.0 ns
-optimized	fixed_qty	100	74.6 ns
-optimized	fixed_qty	1,000	29.1 ns
-optimized	fixed_qty	10,000	27.5 ns
-optimized	fixed_qty	100,000	61.5 ns
-optimized	fixed_qty	1,000,000	225.0 ns
-</details> <details> <summary><code>BM_PlaceOrder_MixedTraffic_BidsResting</code></summary>
-Implementation	Variant	Depth	Match %	Time
-naive	narrow_range varied_qty	100	0%	61.4 ns
-naive	narrow_range varied_qty	1,000	0%	79.8 ns
-naive	narrow_range varied_qty	10,000	0%	102.0 ns
-naive	narrow_range varied_qty	100,000	0%	168.0 ns
-naive	narrow_range varied_qty	1,000,000	0%	175.0 ns
-naive	narrow_range varied_qty	100	30%	48.7 ns
-naive	narrow_range varied_qty	1,000	30%	59.4 ns
-naive	narrow_range varied_qty	10,000	30%	73.0 ns
-naive	narrow_range varied_qty	100,000	30%	105.0 ns
-naive	narrow_range varied_qty	1,000,000	30%	105.0 ns
-naive	narrow_range varied_qty	100	70%	27.1 ns
-naive	narrow_range varied_qty	1,000	70%	31.5 ns
-naive	narrow_range varied_qty	10,000	70%	35.4 ns
-naive	narrow_range varied_qty	100,000	70%	42.2 ns
-naive	narrow_range varied_qty	1,000,000	70%	41.1 ns
-naive	narrow_range varied_qty	100	100%	13.2 ns
-naive	narrow_range varied_qty	1,000	100%	11.6 ns
-naive	narrow_range varied_qty	10,000	100%	10.8 ns
-naive	narrow_range varied_qty	100,000	100%	10.4 ns
-naive	narrow_range varied_qty	1,000,000	100%	10.8 ns
-naive	narrow_range fixed_qty	100	0%	60.4 ns
-naive	narrow_range fixed_qty	1,000	0%	79.9 ns
-naive	narrow_range fixed_qty	10,000	0%	101.0 ns
-naive	narrow_range fixed_qty	100,000	0%	164.0 ns
-naive	narrow_range fixed_qty	1,000,000	0%	175.0 ns
-naive	narrow_range fixed_qty	100	30%	44.0 ns
-naive	narrow_range fixed_qty	1,000	30%	57.4 ns
-naive	narrow_range fixed_qty	10,000	30%	71.8 ns
-naive	narrow_range fixed_qty	100,000	30%	105.0 ns
-naive	narrow_range fixed_qty	1,000,000	30%	102.0 ns
-naive	narrow_range fixed_qty	100	70%	22.5 ns
-naive	narrow_range fixed_qty	1,000	70%	27.2 ns
-naive	narrow_range fixed_qty	10,000	70%	31.1 ns
-naive	narrow_range fixed_qty	100,000	70%	38.0 ns
-naive	narrow_range fixed_qty	1,000,000	70%	36.3 ns
-naive	narrow_range fixed_qty	100	100%	5.7 ns
-naive	narrow_range fixed_qty	1,000	100%	4.5 ns
-naive	narrow_range fixed_qty	10,000	100%	4.2 ns
-naive	narrow_range fixed_qty	100,000	100%	4.2 ns
-naive	narrow_range fixed_qty	1,000,000	100%	6.1 ns
-naive	wide_range varied_qty	100	0%	61.3 ns
-naive	wide_range varied_qty	1,000	0%	79.6 ns
-naive	wide_range varied_qty	10,000	0%	103.0 ns
-naive	wide_range varied_qty	100,000	0%	213.0 ns
-naive	wide_range varied_qty	1,000,000	0%	609.0 ns
-naive	wide_range varied_qty	100	30%	47.1 ns
-naive	wide_range varied_qty	1,000	30%	59.4 ns
-naive	wide_range varied_qty	10,000	30%	74.1 ns
-naive	wide_range varied_qty	100,000	30%	137.0 ns
-naive	wide_range varied_qty	1,000,000	30%	314.0 ns
-naive	wide_range varied_qty	100	70%	27.6 ns
-naive	wide_range varied_qty	1,000	70%	31.6 ns
-naive	wide_range varied_qty	10,000	70%	36.0 ns
-naive	wide_range varied_qty	100,000	70%	52.0 ns
-naive	wide_range varied_qty	1,000,000	70%	106.0 ns
-naive	wide_range varied_qty	100	100%	13.0 ns
-naive	wide_range varied_qty	1,000	100%	11.6 ns
-naive	wide_range varied_qty	10,000	100%	10.9 ns
-naive	wide_range varied_qty	100,000	100%	10.5 ns
-naive	wide_range varied_qty	1,000,000	100%	10.9 ns
-naive	wide_range fixed_qty	100	0%	59.1 ns
-naive	wide_range fixed_qty	1,000	0%	80.2 ns
-naive	wide_range fixed_qty	10,000	0%	103.0 ns
-naive	wide_range fixed_qty	100,000	0%	221.0 ns
-naive	wide_range fixed_qty	1,000,000	0%	569.0 ns
-naive	wide_range fixed_qty	100	30%	45.4 ns
-naive	wide_range fixed_qty	1,000	30%	57.6 ns
-naive	wide_range fixed_qty	10,000	30%	72.3 ns
-naive	wide_range fixed_qty	100,000	30%	136.0 ns
-naive	wide_range fixed_qty	1,000,000	30%	307.0 ns
-naive	wide_range fixed_qty	100	70%	23.1 ns
-naive	wide_range fixed_qty	1,000	70%	27.2 ns
-naive	wide_range fixed_qty	10,000	70%	31.7 ns
-naive	wide_range fixed_qty	100,000	70%	47.0 ns
-naive	wide_range fixed_qty	1,000,000	70%	100.0 ns
-naive	wide_range fixed_qty	100	100%	5.8 ns
-naive	wide_range fixed_qty	1,000	100%	4.6 ns
-naive	wide_range fixed_qty	10,000	100%	5.1 ns
-naive	wide_range fixed_qty	100,000	100%	5.1 ns
-naive	wide_range fixed_qty	1,000,000	100%	6.2 ns
-optimized	narrow_range varied_qty	100	0%	19.3 ns
-optimized	narrow_range varied_qty	1,000	0%	15.7 ns
-optimized	narrow_range varied_qty	10,000	0%	17.3 ns
-optimized	narrow_range varied_qty	100,000	0%	29.8 ns
-optimized	narrow_range varied_qty	1,000,000	0%	53.6 ns
-optimized	narrow_range varied_qty	100	30%	23.5 ns
-optimized	narrow_range varied_qty	1,000	30%	20.9 ns
-optimized	narrow_range varied_qty	10,000	30%	22.8 ns
-optimized	narrow_range varied_qty	100,000	30%	32.0 ns
-optimized	narrow_range varied_qty	1,000,000	30%	51.1 ns
-optimized	narrow_range varied_qty	100	70%	30.3 ns
-optimized	narrow_range varied_qty	1,000	70%	26.9 ns
-optimized	narrow_range varied_qty	10,000	70%	28.3 ns
-optimized	narrow_range varied_qty	100,000	70%	40.0 ns
-optimized	narrow_range varied_qty	1,000,000	70%	77.4 ns
-optimized	narrow_range varied_qty	100	100%	30.6 ns
-optimized	narrow_range varied_qty	1,000	100%	23.8 ns
-optimized	narrow_range varied_qty	10,000	100%	23.1 ns
-optimized	narrow_range varied_qty	100,000	100%	23.0 ns
-optimized	narrow_range varied_qty	1,000,000	100%	23.1 ns
-optimized	narrow_range fixed_qty	100	0%	18.6 ns
-optimized	narrow_range fixed_qty	1,000	0%	15.7 ns
-optimized	narrow_range fixed_qty	10,000	0%	17.3 ns
-optimized	narrow_range fixed_qty	100,000	0%	29.8 ns
-optimized	narrow_range fixed_qty	1,000,000	0%	53.8 ns
-optimized	narrow_range fixed_qty	100	30%	21.6 ns
-optimized	narrow_range fixed_qty	1,000	30%	18.6 ns
-optimized	narrow_range fixed_qty	10,000	30%	20.8 ns
-optimized	narrow_range fixed_qty	100,000	30%	29.2 ns
-optimized	narrow_range fixed_qty	1,000,000	30%	48.4 ns
-optimized	narrow_range fixed_qty	100	70%	25.5 ns
-optimized	narrow_range fixed_qty	1,000	70%	20.4 ns
-optimized	narrow_range fixed_qty	10,000	70%	22.4 ns
-optimized	narrow_range fixed_qty	100,000	70%	35.4 ns
-optimized	narrow_range fixed_qty	1,000,000	70%	76.2 ns
-optimized	narrow_range fixed_qty	100	100%	27.5 ns
-optimized	narrow_range fixed_qty	1,000	100%	15.1 ns
-optimized	narrow_range fixed_qty	10,000	100%	14.4 ns
-optimized	narrow_range fixed_qty	100,000	100%	14.6 ns
-optimized	narrow_range fixed_qty	1,000,000	100%	14.9 ns
-optimized	wide_range varied_qty	100	0%	60.0 ns
-optimized	wide_range varied_qty	1,000	0%	54.3 ns
-optimized	wide_range varied_qty	10,000	0%	49.2 ns
-optimized	wide_range varied_qty	100,000	0%	61.1 ns
-optimized	wide_range varied_qty	1,000,000	0%	83.5 ns
-optimized	wide_range varied_qty	100	30%	51.6 ns
-optimized	wide_range varied_qty	1,000	30%	45.9 ns
-optimized	wide_range varied_qty	10,000	30%	36.1 ns
-optimized	wide_range varied_qty	100,000	30%	48.4 ns
-optimized	wide_range varied_qty	1,000,000	30%	69.4 ns
-optimized	wide_range varied_qty	100	70%	40.8 ns
-optimized	wide_range varied_qty	1,000	70%	35.5 ns
-optimized	wide_range varied_qty	10,000	70%	33.6 ns
-optimized	wide_range varied_qty	100,000	70%	47.1 ns
-optimized	wide_range varied_qty	1,000,000	70%	74.4 ns
-optimized	wide_range varied_qty	100	100%	52.9 ns
-optimized	wide_range varied_qty	1,000	100%	26.2 ns
-optimized	wide_range varied_qty	10,000	100%	23.8 ns
-optimized	wide_range varied_qty	100,000	100%	23.5 ns
-optimized	wide_range varied_qty	1,000,000	100%	23.5 ns
-optimized	wide_range fixed_qty	100	0%	60.1 ns
-optimized	wide_range fixed_qty	1,000	0%	54.0 ns
-optimized	wide_range fixed_qty	10,000	0%	48.5 ns
-optimized	wide_range fixed_qty	100,000	0%	61.5 ns
-optimized	wide_range fixed_qty	1,000,000	0%	85.7 ns
-optimized	wide_range fixed_qty	100	30%	51.2 ns
-optimized	wide_range fixed_qty	1,000	30%	44.8 ns
-optimized	wide_range fixed_qty	10,000	30%	33.2 ns
-optimized	wide_range fixed_qty	100,000	30%	46.1 ns
-optimized	wide_range fixed_qty	1,000,000	30%	67.8 ns
-optimized	wide_range fixed_qty	100	70%	36.5 ns
-optimized	wide_range fixed_qty	1,000	70%	29.2 ns
-optimized	wide_range fixed_qty	10,000	70%	26.7 ns
-optimized	wide_range fixed_qty	100,000	70%	40.8 ns
-optimized	wide_range fixed_qty	1,000,000	70%	76.8 ns
-optimized	wide_range fixed_qty	100	100%	66.5 ns
-optimized	wide_range fixed_qty	1,000	100%	19.0 ns
-optimized	wide_range fixed_qty	10,000	100%	14.7 ns
-optimized	wide_range fixed_qty	100,000	100%	14.5 ns
-optimized	wide_range fixed_qty	1,000,000	100%	14.8 ns
-</details> <details> <summary><code>BM_PlaceOrder_MixedTraffic_AsksResting</code></summary>
-Implementation	Variant	Depth	Match %	Time
-naive	narrow_range varied_qty	100	0%	62.4 ns
-naive	narrow_range varied_qty	1,000	0%	79.3 ns
-naive	narrow_range varied_qty	10,000	0%	101.0 ns
-naive	narrow_range varied_qty	100,000	0%	166.0 ns
-naive	narrow_range varied_qty	1,000,000	0%	174.0 ns
-naive	narrow_range varied_qty	100	30%	46.4 ns
-naive	narrow_range varied_qty	1,000	30%	58.9 ns
-naive	narrow_range varied_qty	10,000	30%	72.3 ns
-naive	narrow_range varied_qty	100,000	30%	105.0 ns
-naive	narrow_range varied_qty	1,000,000	30%	104.0 ns
-naive	narrow_range varied_qty	100	70%	26.5 ns
-naive	narrow_range varied_qty	1,000	70%	31.3 ns
-naive	narrow_range varied_qty	10,000	70%	35.1 ns
-naive	narrow_range varied_qty	100,000	70%	42.3 ns
-naive	narrow_range varied_qty	1,000,000	70%	41.1 ns
-naive	narrow_range varied_qty	100	100%	13.3 ns
-naive	narrow_range varied_qty	1,000	100%	11.8 ns
-naive	narrow_range varied_qty	10,000	100%	10.9 ns
-naive	narrow_range varied_qty	100,000	100%	10.7 ns
-naive	narrow_range varied_qty	1,000,000	100%	11.1 ns
-naive	narrow_range fixed_qty	100	0%	61.6 ns
-naive	narrow_range fixed_qty	1,000	0%	79.5 ns
-naive	narrow_range fixed_qty	10,000	0%	102.0 ns
-naive	narrow_range fixed_qty	100,000	0%	166.0 ns
-naive	narrow_range fixed_qty	1,000,000	0%	166.0 ns
-naive	narrow_range fixed_qty	100	30%	43.4 ns
-naive	narrow_range fixed_qty	1,000	30%	57.1 ns
-naive	narrow_range fixed_qty	10,000	30%	70.5 ns
-naive	narrow_range fixed_qty	100,000	30%	103.0 ns
-naive	narrow_range fixed_qty	1,000,000	30%	99.9 ns
-naive	narrow_range fixed_qty	100	70%	22.0 ns
-naive	narrow_range fixed_qty	1,000	70%	27.0 ns
-naive	narrow_range fixed_qty	10,000	70%	30.9 ns
-naive	narrow_range fixed_qty	100,000	70%	38.5 ns
-naive	narrow_range fixed_qty	1,000,000	70%	35.8 ns
-naive	narrow_range fixed_qty	100	100%	5.9 ns
-naive	narrow_range fixed_qty	1,000	100%	4.4 ns
-naive	narrow_range fixed_qty	10,000	100%	4.2 ns
-naive	narrow_range fixed_qty	100,000	100%	4.4 ns
-naive	narrow_range fixed_qty	1,000,000	100%	6.1 ns
-naive	wide_range varied_qty	100	0%	61.6 ns
-naive	wide_range varied_qty	1,000	0%	79.8 ns
-naive	wide_range varied_qty	10,000	0%	103.0 ns
-naive	wide_range varied_qty	100,000	0%	212.0 ns
-naive	wide_range varied_qty	1,000,000	0%	590.0 ns
-naive	wide_range varied_qty	100	30%	45.7 ns
-naive	wide_range varied_qty	1,000	30%	59.0 ns
-naive	wide_range varied_qty	10,000	30%	74.0 ns
-naive	wide_range varied_qty	100,000	30%	139.0 ns
-naive	wide_range varied_qty	1,000,000	30%	315.0 ns
-naive	wide_range varied_qty	100	70%	26.1 ns
-naive	wide_range varied_qty	1,000	70%	31.4 ns
-naive	wide_range varied_qty	10,000	70%	35.7 ns
-naive	wide_range varied_qty	100,000	70%	51.9 ns
-naive	wide_range varied_qty	1,000,000	70%	105.0 ns
-naive	wide_range varied_qty	100	100%	13.3 ns
-naive	wide_range varied_qty	1,000	100%	11.8 ns
-naive	wide_range varied_qty	10,000	100%	10.9 ns
-naive	wide_range varied_qty	100,000	100%	10.7 ns
-naive	wide_range varied_qty	1,000,000	100%	11.2 ns
-naive	wide_range fixed_qty	100	0%	61.6 ns
-naive	wide_range fixed_qty	1,000	0%	79.7 ns
-naive	wide_range fixed_qty	10,000	0%	104.0 ns
-naive	wide_range fixed_qty	100,000	0%	216.0 ns
-naive	wide_range fixed_qty	1,000,000	0%	605.0 ns
-naive	wide_range fixed_qty	100	30%	45.3 ns
-naive	wide_range fixed_qty	1,000	30%	57.2 ns
-naive	wide_range fixed_qty	10,000	30%	72.0 ns
-naive	wide_range fixed_qty	100,000	30%	136.0 ns
-naive	wide_range fixed_qty	1,000,000	30%	317.0 ns
-naive	wide_range fixed_qty	100	70%	22.0 ns
-naive	wide_range fixed_qty	1,000	70%	27.0 ns
-naive	wide_range fixed_qty	10,000	70%	31.4 ns
-naive	wide_range fixed_qty	100,000	70%	46.8 ns
-naive	wide_range fixed_qty	1,000,000	70%	98.2 ns
-naive	wide_range fixed_qty	100	100%	5.8 ns
-naive	wide_range fixed_qty	1,000	100%	4.4 ns
-naive	wide_range fixed_qty	10,000	100%	4.2 ns
-naive	wide_range fixed_qty	100,000	100%	4.3 ns
-naive	wide_range fixed_qty	1,000,000	100%	6.1 ns
-optimized	narrow_range varied_qty	100	0%	20.1 ns
-optimized	narrow_range varied_qty	1,000	0%	16.4 ns
-optimized	narrow_range varied_qty	10,000	0%	17.7 ns
-optimized	narrow_range varied_qty	100,000	0%	31.4 ns
-optimized	narrow_range varied_qty	1,000,000	0%	54.1 ns
-optimized	narrow_range varied_qty	100	30%	23.7 ns
-optimized	narrow_range varied_qty	1,000	30%	21.1 ns
-optimized	narrow_range varied_qty	10,000	30%	22.8 ns
-optimized	narrow_range varied_qty	100,000	30%	32.2 ns
-optimized	narrow_range varied_qty	1,000,000	30%	52.3 ns
-optimized	narrow_range varied_qty	100	70%	30.9 ns
-optimized	narrow_range varied_qty	1,000	70%	27.2 ns
-optimized	narrow_range varied_qty	10,000	70%	28.3 ns
-optimized	narrow_range varied_qty	100,000	70%	42.1 ns
-optimized	narrow_range varied_qty	1,000,000	70%	76.4 ns
-optimized	narrow_range varied_qty	100	100%	51.6 ns
-optimized	narrow_range varied_qty	1,000	100%	26.0 ns
-optimized	narrow_range varied_qty	10,000	100%	23.6 ns
-optimized	narrow_range varied_qty	100,000	100%	23.5 ns
-optimized	narrow_range varied_qty	1,000,000	100%	23.5 ns
-optimized	narrow_range fixed_qty	100	0%	19.9 ns
-optimized	narrow_range fixed_qty	1,000	0%	16.4 ns
-optimized	narrow_range fixed_qty	10,000	0%	17.7 ns
-optimized	narrow_range fixed_qty	100,000	0%	31.4 ns
-optimized	narrow_range fixed_qty	1,000,000	0%	55.4 ns
-optimized	narrow_range fixed_qty	100	30%	21.5 ns
-optimized	narrow_range fixed_qty	1,000	30%	18.6 ns
-optimized	narrow_range fixed_qty	10,000	30%	20.5 ns
-optimized	narrow_range fixed_qty	100,000	30%	29.3 ns
-optimized	narrow_range fixed_qty	1,000,000	30%	48.8 ns
-optimized	narrow_range fixed_qty	100	70%	25.9 ns
-optimized	narrow_range fixed_qty	1,000	70%	20.0 ns
-optimized	narrow_range fixed_qty	10,000	70%	22.1 ns
-optimized	narrow_range fixed_qty	100,000	70%	34.6 ns
-optimized	narrow_range fixed_qty	1,000,000	70%	75.8 ns
-optimized	narrow_range fixed_qty	100	100%	66.2 ns
-optimized	narrow_range fixed_qty	1,000	100%	18.9 ns
-optimized	narrow_range fixed_qty	10,000	100%	14.5 ns
-optimized	narrow_range fixed_qty	100,000	100%	14.2 ns
-optimized	narrow_range fixed_qty	1,000,000	100%	14.6 ns
-optimized	wide_range varied_qty	100	0%	60.3 ns
-optimized	wide_range varied_qty	1,000	0%	54.5 ns
-optimized	wide_range varied_qty	10,000	0%	49.7 ns
-optimized	wide_range varied_qty	100,000	0%	61.0 ns
-optimized	wide_range varied_qty	1,000,000	0%	84.0 ns
-optimized	wide_range varied_qty	100	30%	51.8 ns
-optimized	wide_range varied_qty	1,000	30%	46.1 ns
-optimized	wide_range varied_qty	10,000	30%	36.3 ns
-optimized	wide_range varied_qty	100,000	30%	48.2 ns
-optimized	wide_range varied_qty	1,000,000	30%	70.1 ns
-optimized	wide_range varied_qty	100	70%	41.2 ns
-optimized	wide_range varied_qty	1,000	70%	35.8 ns
-optimized	wide_range varied_qty	10,000	70%	33.7 ns
-optimized	wide_range varied_qty	100,000	70%	49.2 ns
-optimized	wide_range varied_qty	1,000,000	70%	75.1 ns
-optimized	wide_range varied_qty	100	100%	52.6 ns
-optimized	wide_range varied_qty	1,000	100%	26.2 ns
-optimized	wide_range varied_qty	10,000	100%	23.5 ns
-optimized	wide_range varied_qty	100,000	100%	23.4 ns
-optimized	wide_range varied_qty	1,000,000	100%	23.5 ns
-optimized	wide_range fixed_qty	100	0%	62.1 ns
-optimized	wide_range fixed_qty	1,000	0%	58.3 ns
-optimized	wide_range fixed_qty	10,000	0%	53.0 ns
-optimized	wide_range fixed_qty	100,000	0%	63.8 ns
-optimized	wide_range fixed_qty	1,000,000	0%	88.8 ns
-optimized	wide_range fixed_qty	100	30%	51.4 ns
-optimized	wide_range fixed_qty	1,000	30%	46.8 ns
-optimized	wide_range fixed_qty	10,000	30%	38.2 ns
-optimized	wide_range fixed_qty	100,000	30%	50.0 ns
-optimized	wide_range fixed_qty	1,000,000	30%	70.1 ns
-optimized	wide_range fixed_qty	100	70%	36.2 ns
-optimized	wide_range fixed_qty	1,000	70%	29.5 ns
-optimized	wide_range fixed_qty	10,000	70%	29.8 ns
-optimized	wide_range fixed_qty	100,000	70%	46.3 ns
-optimized	wide_range fixed_qty	1,000,000	70%	78.2 ns
-optimized	wide_range fixed_qty	100	100%	65.3 ns
-optimized	wide_range fixed_qty	1,000	100%	19.1 ns
-optimized	wide_range fixed_qty	10,000	100%	14.6 ns
-optimized	wide_range fixed_qty	100,000	100%	14.4 ns
-optimized	wide_range fixed_qty	1,000,000	100%	14.7 ns
-</details> <details> <summary><code>BM_CancelBids</code></summary>
-Implementation	Variant	Depth	Time
-naive	—	100	314.0 ns
-naive	—	1,000	4.36 µs
-naive	—	10,000	58.46 µs
-naive	—	100,000	218.95 µs
-naive	—	1,000,000	4.62 ms
-optimized	—	100	24.1 ns
-optimized	—	1,000	28.5 ns
-optimized	—	10,000	40.7 ns
-optimized	—	100,000	129.0 ns
-optimized	—	1,000,000	259.0 ns
-</details> <details> <summary><code>BM_CancelAsks</code></summary>
-Implementation	Variant	Depth	Time
-naive	—	100	311.0 ns
-naive	—	1,000	4.32 µs
-naive	—	10,000	59.12 µs
-naive	—	100,000	216.60 µs
-naive	—	1,000,000	4.07 ms
-optimized	—	100	23.9 ns
-optimized	—	1,000	28.7 ns
-optimized	—	10,000	40.8 ns
-optimized	—	100,000	121.0 ns
-optimized	—	1,000,000	261.0 ns
-</details> </details>e varied_qty	1,000,000	30%	52.3 ns
-optimized	narrow_range varied_qty	100	70%	30.9 ns
-optimized	narrow_range varied_qty	1,000	70%	27.2 ns
-optimized	narrow_range varied_qty	10,000	70%	28.3 ns
-optimized	narrow_range varied_qty	100,000	70%	42.1 ns
-optimized	narrow_range varied_qty	1,000,000	70%	76.4 ns
-optimized	narrow_range varied_qty	100	100%	51.6 ns
-optimized	narrow_range varied_qty	1,000	100%	26.0 ns
-optimized	narrow_range varied_qty	10,000	100%	23.6 ns
-optimized	narrow_range varied_qty	100,000	100%	23.5 ns
-optimized	narrow_range varied_qty	1,000,000	100%	23.5 ns
-optimized	narrow_range fixed_qty	100	0%	19.9 ns
-optimized	narrow_range fixed_qty	1,000	0%	16.4 ns
-optimized	narrow_range fixed_qty	10,000	0%	17.7 ns
-optimized	narrow_range fixed_qty	100,000	0%	31.4 ns
-optimized	narrow_range fixed_qty	1,000,000	0%	55.4 ns
-optimized	narrow_range fixed_qty	100	30%	21.5 ns
-optimized	narrow_range fixed_qty	1,000	30%	18.6 ns
-optimized	narrow_range fixed_qty	10,000	30%	20.5 ns
-optimized	narrow_range fixed_qty	100,000	30%	29.3 ns
-optimized	narrow_range fixed_qty	1,000,000	30%	48.8 ns
-optimized	narrow_range fixed_qty	100	70%	25.9 ns
-optimized	narrow_range fixed_qty	1,000	70%	20.0 ns
-optimized	narrow_range fixed_qty	10,000	70%	22.1 ns
-optimized	narrow_range fixed_qty	100,000	70%	34.6 ns
-optimized	narrow_range fixed_qty	1,000,000	70%	75.8 ns
-optimized	narrow_range fixed_qty	100	100%	66.2 ns
-optimized	narrow_range fixed_qty	1,000	100%	18.9 ns
-optimized	narrow_range fixed_qty	10,000	100%	14.5 ns
-optimized	narrow_range fixed_qty	100,000	100%	14.2 ns
-optimized	narrow_range fixed_qty	1,000,000	100%	14.6 ns
-optimized	wide_range varied_qty	100	0%	60.3 ns
-optimized	wide_range varied_qty	1,000	0%	54.5 ns
-optimized	wide_range varied_qty	10,000	0%	49.7 ns
-optimized	wide_range varied_qty	100,000	0%	61.0 ns
-optimized	wide_range varied_qty	1,000,000	0%	84.0 ns
-optimized	wide_range varied_qty	100	30%	51.8 ns
-optimized	wide_range varied_qty	1,000	30%	46.1 ns
-optimized	wide_range varied_qty	10,000	30%	36.3 ns
-optimized	wide_range varied_qty	100,000	30%	48.2 ns
-optimized	wide_range varied_qty	1,000,000	30%	70.1 ns
-optimized	wide_range varied_qty	100	70%	41.2 ns
-optimized	wide_range varied_qty	1,000	70%	35.8 ns
-optimized	wide_range varied_qty	10,000	70%	33.7 ns
-optimized	wide_range varied_qty	100,000	70%	49.2 ns
-optimized	wide_range varied_qty	1,000,000	70%	75.1 ns
-optimized	wide_range varied_qty	100	100%	52.6 ns
-optimized	wide_range varied_qty	1,000	100%	26.2 ns
-optimized	wide_range varied_qty	10,000	100%	23.5 ns
-optimized	wide_range varied_qty	100,000	100%	23.4 ns
-optimized	wide_range varied_qty	1,000,000	100%	23.5 ns
-optimized	wide_range fixed_qty	100	0%	62.1 ns
-optimized	wide_range fixed_qty	1,000	0%	58.3 ns
-optimized	wide_range fixed_qty	10,000	0%	53.0 ns
-optimized	wide_range fixed_qty	100,000	0%	63.8 ns
-optimized	wide_range fixed_qty	1,000,000	0%	88.8 ns
-optimized	wide_range fixed_qty	100	30%	51.4 ns
-optimized	wide_range fixed_qty	1,000	30%	46.8 ns
-optimized	wide_range fixed_qty	10,000	30%	38.2 ns
-optimized	wide_range fixed_qty	100,000	30%	50.0 ns
-optimized	wide_range fixed_qty	1,000,000	30%	70.1 ns
-optimized	wide_range fixed_qty	100	70%	36.2 ns
-optimized	wide_range fixed_qty	1,000	70%	29.5 ns
-optimized	wide_range fixed_qty	10,000	70%	29.8 ns
-optimized	wide_range fixed_qty	100,000	70%	46.3 ns
-optimized	wide_range fixed_qty	1,000,000	70%	78.2 ns
-optimized	wide_range fixed_qty	100	100%	65.3 ns
-optimized	wide_range fixed_qty	1,000	100%	19.1 ns
-optimized	wide_range fixed_qty	10,000	100%	14.6 ns
-optimized	wide_range fixed_qty	100,000	100%	14.4 ns
-optimized	wide_range fixed_qty	1,000,000	100%	14.7 ns
-</details> <details> <summary><code>BM_CancelBids</code></summary>
-Implementation	Variant	Depth	Time
-naive	—	100	314.0 ns
-naive	—	1,000	4.36 µs
-naive	—	10,000	58.46 µs
-naive	—	100,000	218.95 µs
-naive	—	1,000,000	4.62 ms
-optimized	—	100	24.1 ns
-optimized	—	1,000	28.5 ns
-optimized	—	10,000	40.7 ns
-optimized	—	100,000	129.0 ns
-optimized	—	1,000,000	259.0 ns
-</details> <details> <summary><code>BM_CancelAsks</code></summary>
-Implementation	Variant	Depth	Time
-naive	—	100	311.0 ns
-naive	—	1,000	4.32 µs
-naive	—	10,000	59.12 µs
-naive	—	100,000	216.60 µs
-naive	—	1,000,000	4.07 ms
-optimized	—	100	23.9 ns
-optimized	—	1,000	28.7 ns
-optimized	—	10,000	40.8 ns
-optimized	—	100,000	121.0 ns
-optimized	—	1,000,000	261.0 ns
-</details> </details>
+| Implementation | Variant | Depth | Time |
+|---|---|---:|---:|
+| naive | narrow_range | 100 | 66.8 ns |
+| naive | narrow_range | 1,000 | 78.8 ns |
+| naive | narrow_range | 10,000 | 64.4 ns |
+| naive | narrow_range | 100,000 | 53.8 ns |
+| naive | narrow_range | 1,000,000 | 62.3 ns |
+| naive | wide_range | 100 | 64.8 ns |
+| naive | wide_range | 1,000 | 85.6 ns |
+| naive | wide_range | 10,000 | 151.0 ns |
+| naive | wide_range | 100,000 | 477.0 ns |
+| naive | wide_range | 1,000,000 | 438.0 ns |
+| optimized | narrow_range | 100 | 16.6 ns |
+| optimized | narrow_range | 1,000 | 15.7 ns |
+| optimized | narrow_range | 10,000 | 18.8 ns |
+| optimized | narrow_range | 100,000 | 20.8 ns |
+| optimized | narrow_range | 1,000,000 | 25.6 ns |
+| optimized | wide_range | 100 | 57.2 ns |
+| optimized | wide_range | 1,000 | 49.7 ns |
+| optimized | wide_range | 10,000 | 42.2 ns |
+| optimized | wide_range | 100,000 | 59.9 ns |
+| optimized | wide_range | 1,000,000 | 112.0 ns |
+
+</details>
+
+<details>
+<summary><code>BM_PlaceOrder_NoMatch_Asks</code></summary>
+
+| Implementation | Variant | Depth | Time |
+|---|---|---:|---:|
+| naive | narrow_range | 100 | 63.1 ns |
+| naive | narrow_range | 1,000 | 85.1 ns |
+| naive | narrow_range | 10,000 | 64.3 ns |
+| naive | narrow_range | 100,000 | 52.5 ns |
+| naive | narrow_range | 1,000,000 | 56.5 ns |
+| naive | wide_range | 100 | 64.1 ns |
+| naive | wide_range | 1,000 | 85.1 ns |
+| naive | wide_range | 10,000 | 153.0 ns |
+| naive | wide_range | 100,000 | 428.0 ns |
+| naive | wide_range | 1,000,000 | 413.0 ns |
+| optimized | narrow_range | 100 | 16.3 ns |
+| optimized | narrow_range | 1,000 | 15.4 ns |
+| optimized | narrow_range | 10,000 | 18.4 ns |
+| optimized | narrow_range | 100,000 | 20.9 ns |
+| optimized | narrow_range | 1,000,000 | 25.9 ns |
+| optimized | wide_range | 100 | 57.2 ns |
+| optimized | wide_range | 1,000 | 48.8 ns |
+| optimized | wide_range | 10,000 | 42.6 ns |
+| optimized | wide_range | 100,000 | 59.6 ns |
+| optimized | wide_range | 1,000,000 | 110.0 ns |
+
+</details>
+
+<details>
+<summary><code>BM_PlaceOrder_AlwaysMatch_BidsResting</code></summary>
+
+| Implementation | Variant | Depth | Time |
+|---|---|---:|---:|
+| naive | varied_qty | 100 | 37.8 ns |
+| naive | varied_qty | 1,000 | 37.1 ns |
+| naive | varied_qty | 10,000 | 29.4 ns |
+| naive | varied_qty | 100,000 | 16.5 ns |
+| naive | varied_qty | 1,000,000 | 25.5 ns |
+| naive | fixed_qty | 100 | 29.8 ns |
+| naive | fixed_qty | 1,000 | 26.9 ns |
+| naive | fixed_qty | 10,000 | 21.6 ns |
+| naive | fixed_qty | 100,000 | 10.1 ns |
+| naive | fixed_qty | 1,000,000 | 19.8 ns |
+| optimized | varied_qty | 100 | 37.7 ns |
+| optimized | varied_qty | 1,000 | 30.8 ns |
+| optimized | varied_qty | 10,000 | 34.2 ns |
+| optimized | varied_qty | 100,000 | 65.0 ns |
+| optimized | varied_qty | 1,000,000 | 239.0 ns |
+| optimized | fixed_qty | 100 | 30.6 ns |
+| optimized | fixed_qty | 1,000 | 22.7 ns |
+| optimized | fixed_qty | 10,000 | 27.3 ns |
+| optimized | fixed_qty | 100,000 | 56.9 ns |
+| optimized | fixed_qty | 1,000,000 | 219.0 ns |
+
+</details>
+
+<details>
+<summary><code>BM_PlaceOrder_AlwaysMatch_AsksResting</code></summary>
+
+| Implementation | Variant | Depth | Time |
+|---|---|---:|---:|
+| naive | varied_qty | 100 | 38.2 ns |
+| naive | varied_qty | 1,000 | 36.9 ns |
+| naive | varied_qty | 10,000 | 29.8 ns |
+| naive | varied_qty | 100,000 | 16.6 ns |
+| naive | varied_qty | 1,000,000 | 25.6 ns |
+| naive | fixed_qty | 100 | 29.7 ns |
+| naive | fixed_qty | 1,000 | 28.5 ns |
+| naive | fixed_qty | 10,000 | 21.7 ns |
+| naive | fixed_qty | 100,000 | 9.7 ns |
+| naive | fixed_qty | 1,000,000 | 19.8 ns |
+| optimized | varied_qty | 100 | 59.8 ns |
+| optimized | varied_qty | 1,000 | 32.5 ns |
+| optimized | varied_qty | 10,000 | 34.1 ns |
+| optimized | varied_qty | 100,000 | 64.3 ns |
+| optimized | varied_qty | 1,000,000 | 238.0 ns |
+| optimized | fixed_qty | 100 | 74.6 ns |
+| optimized | fixed_qty | 1,000 | 29.1 ns |
+| optimized | fixed_qty | 10,000 | 27.5 ns |
+| optimized | fixed_qty | 100,000 | 61.5 ns |
+| optimized | fixed_qty | 1,000,000 | 225.0 ns |
+
+</details>
+
+<details>
+<summary><code>BM_PlaceOrder_MixedTraffic_BidsResting</code></summary>
+
+| Implementation | Variant | Depth | Match % | Time |
+|---|---|---:|---:|---:|
+| naive | narrow_range varied_qty | 100 | 0% | 61.4 ns |
+| naive | narrow_range varied_qty | 1,000 | 0% | 79.8 ns |
+| naive | narrow_range varied_qty | 10,000 | 0% | 102.0 ns |
+| naive | narrow_range varied_qty | 100,000 | 0% | 168.0 ns |
+| naive | narrow_range varied_qty | 1,000,000 | 0% | 175.0 ns |
+| naive | narrow_range varied_qty | 100 | 30% | 48.7 ns |
+| naive | narrow_range varied_qty | 1,000 | 30% | 59.4 ns |
+| naive | narrow_range varied_qty | 10,000 | 30% | 73.0 ns |
+| naive | narrow_range varied_qty | 100,000 | 30% | 105.0 ns |
+| naive | narrow_range varied_qty | 1,000,000 | 30% | 105.0 ns |
+| naive | narrow_range varied_qty | 100 | 70% | 27.1 ns |
+| naive | narrow_range varied_qty | 1,000 | 70% | 31.5 ns |
+| naive | narrow_range varied_qty | 10,000 | 70% | 35.4 ns |
+| naive | narrow_range varied_qty | 100,000 | 70% | 42.2 ns |
+| naive | narrow_range varied_qty | 1,000,000 | 70% | 41.1 ns |
+| naive | narrow_range varied_qty | 100 | 100% | 13.2 ns |
+| naive | narrow_range varied_qty | 1,000 | 100% | 11.6 ns |
+| naive | narrow_range varied_qty | 10,000 | 100% | 10.8 ns |
+| naive | narrow_range varied_qty | 100,000 | 100% | 10.4 ns |
+| naive | narrow_range varied_qty | 1,000,000 | 100% | 10.8 ns |
+| naive | narrow_range fixed_qty | 100 | 0% | 60.4 ns |
+| naive | narrow_range fixed_qty | 1,000 | 0% | 79.9 ns |
+| naive | narrow_range fixed_qty | 10,000 | 0% | 101.0 ns |
+| naive | narrow_range fixed_qty | 100,000 | 0% | 164.0 ns |
+| naive | narrow_range fixed_qty | 1,000,000 | 0% | 175.0 ns |
+| naive | narrow_range fixed_qty | 100 | 30% | 44.0 ns |
+| naive | narrow_range fixed_qty | 1,000 | 30% | 57.4 ns |
+| naive | narrow_range fixed_qty | 10,000 | 30% | 71.8 ns |
+| naive | narrow_range fixed_qty | 100,000 | 30% | 105.0 ns |
+| naive | narrow_range fixed_qty | 1,000,000 | 30% | 102.0 ns |
+| naive | narrow_range fixed_qty | 100 | 70% | 22.5 ns |
+| naive | narrow_range fixed_qty | 1,000 | 70% | 27.2 ns |
+| naive | narrow_range fixed_qty | 10,000 | 70% | 31.1 ns |
+| naive | narrow_range fixed_qty | 100,000 | 70% | 38.0 ns |
+| naive | narrow_range fixed_qty | 1,000,000 | 70% | 36.3 ns |
+| naive | narrow_range fixed_qty | 100 | 100% | 5.7 ns |
+| naive | narrow_range fixed_qty | 1,000 | 100% | 4.5 ns |
+| naive | narrow_range fixed_qty | 10,000 | 100% | 4.2 ns |
+| naive | narrow_range fixed_qty | 100,000 | 100% | 4.2 ns |
+| naive | narrow_range fixed_qty | 1,000,000 | 100% | 6.1 ns |
+| naive | wide_range varied_qty | 100 | 0% | 61.3 ns |
+| naive | wide_range varied_qty | 1,000 | 0% | 79.6 ns |
+| naive | wide_range varied_qty | 10,000 | 0% | 103.0 ns |
+| naive | wide_range varied_qty | 100,000 | 0% | 213.0 ns |
+| naive | wide_range varied_qty | 1,000,000 | 0% | 609.0 ns |
+| naive | wide_range varied_qty | 100 | 30% | 47.1 ns |
+| naive | wide_range varied_qty | 1,000 | 30% | 59.4 ns |
+| naive | wide_range varied_qty | 10,000 | 30% | 74.1 ns |
+| naive | wide_range varied_qty | 100,000 | 30% | 137.0 ns |
+| naive | wide_range varied_qty | 1,000,000 | 30% | 314.0 ns |
+| naive | wide_range varied_qty | 100 | 70% | 27.6 ns |
+| naive | wide_range varied_qty | 1,000 | 70% | 31.6 ns |
+| naive | wide_range varied_qty | 10,000 | 70% | 36.0 ns |
+| naive | wide_range varied_qty | 100,000 | 70% | 52.0 ns |
+| naive | wide_range varied_qty | 1,000,000 | 70% | 106.0 ns |
+| naive | wide_range varied_qty | 100 | 100% | 13.0 ns |
+| naive | wide_range varied_qty | 1,000 | 100% | 11.6 ns |
+| naive | wide_range varied_qty | 10,000 | 100% | 10.9 ns |
+| naive | wide_range varied_qty | 100,000 | 100% | 10.5 ns |
+| naive | wide_range varied_qty | 1,000,000 | 100% | 10.9 ns |
+| naive | wide_range fixed_qty | 100 | 0% | 59.1 ns |
+| naive | wide_range fixed_qty | 1,000 | 0% | 80.2 ns |
+| naive | wide_range fixed_qty | 10,000 | 0% | 103.0 ns |
+| naive | wide_range fixed_qty | 100,000 | 0% | 221.0 ns |
+| naive | wide_range fixed_qty | 1,000,000 | 0% | 569.0 ns |
+| naive | wide_range fixed_qty | 100 | 30% | 45.4 ns |
+| naive | wide_range fixed_qty | 1,000 | 30% | 57.6 ns |
+| naive | wide_range fixed_qty | 10,000 | 30% | 72.3 ns |
+| naive | wide_range fixed_qty | 100,000 | 30% | 136.0 ns |
+| naive | wide_range fixed_qty | 1,000,000 | 30% | 307.0 ns |
+| naive | wide_range fixed_qty | 100 | 70% | 23.1 ns |
+| naive | wide_range fixed_qty | 1,000 | 70% | 27.2 ns |
+| naive | wide_range fixed_qty | 10,000 | 70% | 31.7 ns |
+| naive | wide_range fixed_qty | 100,000 | 70% | 47.0 ns |
+| naive | wide_range fixed_qty | 1,000,000 | 70% | 100.0 ns |
+| naive | wide_range fixed_qty | 100 | 100% | 5.8 ns |
+| naive | wide_range fixed_qty | 1,000 | 100% | 4.6 ns |
+| naive | wide_range fixed_qty | 10,000 | 100% | 5.1 ns |
+| naive | wide_range fixed_qty | 100,000 | 100% | 5.1 ns |
+| naive | wide_range fixed_qty | 1,000,000 | 100% | 6.2 ns |
+| optimized | narrow_range varied_qty | 100 | 0% | 19.3 ns |
+| optimized | narrow_range varied_qty | 1,000 | 0% | 15.7 ns |
+| optimized | narrow_range varied_qty | 10,000 | 0% | 17.3 ns |
+| optimized | narrow_range varied_qty | 100,000 | 0% | 29.8 ns |
+| optimized | narrow_range varied_qty | 1,000,000 | 0% | 53.6 ns |
+| optimized | narrow_range varied_qty | 100 | 30% | 23.5 ns |
+| optimized | narrow_range varied_qty | 1,000 | 30% | 20.9 ns |
+| optimized | narrow_range varied_qty | 10,000 | 30% | 22.8 ns |
+| optimized | narrow_range varied_qty | 100,000 | 30% | 32.0 ns |
+| optimized | narrow_range varied_qty | 1,000,000 | 30% | 51.1 ns |
+| optimized | narrow_range varied_qty | 100 | 70% | 30.3 ns |
+| optimized | narrow_range varied_qty | 1,000 | 70% | 26.9 ns |
+| optimized | narrow_range varied_qty | 10,000 | 70% | 28.3 ns |
+| optimized | narrow_range varied_qty | 100,000 | 70% | 40.0 ns |
+| optimized | narrow_range varied_qty | 1,000,000 | 70% | 77.4 ns |
+| optimized | narrow_range varied_qty | 100 | 100% | 30.6 ns |
+| optimized | narrow_range varied_qty | 1,000 | 100% | 23.8 ns |
+| optimized | narrow_range varied_qty | 10,000 | 100% | 23.1 ns |
+| optimized | narrow_range varied_qty | 100,000 | 100% | 23.0 ns |
+| optimized | narrow_range varied_qty | 1,000,000 | 100% | 23.1 ns |
+| optimized | narrow_range fixed_qty | 100 | 0% | 18.6 ns |
+| optimized | narrow_range fixed_qty | 1,000 | 0% | 15.7 ns |
+| optimized | narrow_range fixed_qty | 10,000 | 0% | 17.3 ns |
+| optimized | narrow_range fixed_qty | 100,000 | 0% | 29.8 ns |
+| optimized | narrow_range fixed_qty | 1,000,000 | 0% | 53.8 ns |
+| optimized | narrow_range fixed_qty | 100 | 30% | 21.6 ns |
+| optimized | narrow_range fixed_qty | 1,000 | 30% | 18.6 ns |
+| optimized | narrow_range fixed_qty | 10,000 | 30% | 20.8 ns |
+| optimized | narrow_range fixed_qty | 100,000 | 30% | 29.2 ns |
+| optimized | narrow_range fixed_qty | 1,000,000 | 30% | 48.4 ns |
+| optimized | narrow_range fixed_qty | 100 | 70% | 25.5 ns |
+| optimized | narrow_range fixed_qty | 1,000 | 70% | 20.4 ns |
+| optimized | narrow_range fixed_qty | 10,000 | 70% | 22.4 ns |
+| optimized | narrow_range fixed_qty | 100,000 | 70% | 35.4 ns |
+| optimized | narrow_range fixed_qty | 1,000,000 | 70% | 76.2 ns |
+| optimized | narrow_range fixed_qty | 100 | 100% | 27.5 ns |
+| optimized | narrow_range fixed_qty | 1,000 | 100% | 15.1 ns |
+| optimized | narrow_range fixed_qty | 10,000 | 100% | 14.4 ns |
+| optimized | narrow_range fixed_qty | 100,000 | 100% | 14.6 ns |
+| optimized | narrow_range fixed_qty | 1,000,000 | 100% | 14.9 ns |
+| optimized | wide_range varied_qty | 100 | 0% | 60.0 ns |
+| optimized | wide_range varied_qty | 1,000 | 0% | 54.3 ns |
+| optimized | wide_range varied_qty | 10,000 | 0% | 49.2 ns |
+| optimized | wide_range varied_qty | 100,000 | 0% | 61.1 ns |
+| optimized | wide_range varied_qty | 1,000,000 | 0% | 83.5 ns |
+| optimized | wide_range varied_qty | 100 | 30% | 51.6 ns |
+| optimized | wide_range varied_qty | 1,000 | 30% | 45.9 ns |
+| optimized | wide_range varied_qty | 10,000 | 30% | 36.1 ns |
+| optimized | wide_range varied_qty | 100,000 | 30% | 48.4 ns |
+| optimized | wide_range varied_qty | 1,000,000 | 30% | 69.4 ns |
+| optimized | wide_range varied_qty | 100 | 70% | 40.8 ns |
+| optimized | wide_range varied_qty | 1,000 | 70% | 35.5 ns |
+| optimized | wide_range varied_qty | 10,000 | 70% | 33.6 ns |
+| optimized | wide_range varied_qty | 100,000 | 70% | 47.1 ns |
+| optimized | wide_range varied_qty | 1,000,000 | 70% | 74.4 ns |
+| optimized | wide_range varied_qty | 100 | 100% | 52.9 ns |
+| optimized | wide_range varied_qty | 1,000 | 100% | 26.2 ns |
+| optimized | wide_range varied_qty | 10,000 | 100% | 23.8 ns |
+| optimized | wide_range varied_qty | 100,000 | 100% | 23.5 ns |
+| optimized | wide_range varied_qty | 1,000,000 | 100% | 23.5 ns |
+| optimized | wide_range fixed_qty | 100 | 0% | 60.1 ns |
+| optimized | wide_range fixed_qty | 1,000 | 0% | 54.0 ns |
+| optimized | wide_range fixed_qty | 10,000 | 0% | 48.5 ns |
+| optimized | wide_range fixed_qty | 100,000 | 0% | 61.5 ns |
+| optimized | wide_range fixed_qty | 1,000,000 | 0% | 85.7 ns |
+| optimized | wide_range fixed_qty | 100 | 30% | 51.2 ns |
+| optimized | wide_range fixed_qty | 1,000 | 30% | 44.8 ns |
+| optimized | wide_range fixed_qty | 10,000 | 30% | 33.2 ns |
+| optimized | wide_range fixed_qty | 100,000 | 30% | 46.1 ns |
+| optimized | wide_range fixed_qty | 1,000,000 | 30% | 67.8 ns |
+| optimized | wide_range fixed_qty | 100 | 70% | 36.5 ns |
+| optimized | wide_range fixed_qty | 1,000 | 70% | 29.2 ns |
+| optimized | wide_range fixed_qty | 10,000 | 70% | 26.7 ns |
+| optimized | wide_range fixed_qty | 100,000 | 70% | 40.8 ns |
+| optimized | wide_range fixed_qty | 1,000,000 | 70% | 76.8 ns |
+| optimized | wide_range fixed_qty | 100 | 100% | 66.5 ns |
+| optimized | wide_range fixed_qty | 1,000 | 100% | 19.0 ns |
+| optimized | wide_range fixed_qty | 10,000 | 100% | 14.7 ns |
+| optimized | wide_range fixed_qty | 100,000 | 100% | 14.5 ns |
+| optimized | wide_range fixed_qty | 1,000,000 | 100% | 14.8 ns |
+
+</details>
+
+<details>
+<summary><code>BM_PlaceOrder_MixedTraffic_AsksResting</code></summary>
+
+| Implementation | Variant | Depth | Match % | Time |
+|---|---|---:|---:|---:|
+| naive | narrow_range varied_qty | 100 | 0% | 62.4 ns |
+| naive | narrow_range varied_qty | 1,000 | 0% | 79.3 ns |
+| naive | narrow_range varied_qty | 10,000 | 0% | 101.0 ns |
+| naive | narrow_range varied_qty | 100,000 | 0% | 166.0 ns |
+| naive | narrow_range varied_qty | 1,000,000 | 0% | 174.0 ns |
+| naive | narrow_range varied_qty | 100 | 30% | 46.4 ns |
+| naive | narrow_range varied_qty | 1,000 | 30% | 58.9 ns |
+| naive | narrow_range varied_qty | 10,000 | 30% | 72.3 ns |
+| naive | narrow_range varied_qty | 100,000 | 30% | 105.0 ns |
+| naive | narrow_range varied_qty | 1,000,000 | 30% | 104.0 ns |
+| naive | narrow_range varied_qty | 100 | 70% | 26.5 ns |
+| naive | narrow_range varied_qty | 1,000 | 70% | 31.3 ns |
+| naive | narrow_range varied_qty | 10,000 | 70% | 35.1 ns |
+| naive | narrow_range varied_qty | 100,000 | 70% | 42.3 ns |
+| naive | narrow_range varied_qty | 1,000,000 | 70% | 41.1 ns |
+| naive | narrow_range varied_qty | 100 | 100% | 13.3 ns |
+| naive | narrow_range varied_qty | 1,000 | 100% | 11.8 ns |
+| naive | narrow_range varied_qty | 10,000 | 100% | 10.9 ns |
+| naive | narrow_range varied_qty | 100,000 | 100% | 10.7 ns |
+| naive | narrow_range varied_qty | 1,000,000 | 100% | 11.1 ns |
+| naive | narrow_range fixed_qty | 100 | 0% | 61.6 ns |
+| naive | narrow_range fixed_qty | 1,000 | 0% | 79.5 ns |
+| naive | narrow_range fixed_qty | 10,000 | 0% | 102.0 ns |
+| naive | narrow_range fixed_qty | 100,000 | 0% | 166.0 ns |
+| naive | narrow_range fixed_qty | 1,000,000 | 0% | 166.0 ns |
+| naive | narrow_range fixed_qty | 100 | 30% | 43.4 ns |
+| naive | narrow_range fixed_qty | 1,000 | 30% | 57.1 ns |
+| naive | narrow_range fixed_qty | 10,000 | 30% | 70.5 ns |
+| naive | narrow_range fixed_qty | 100,000 | 30% | 103.0 ns |
+| naive | narrow_range fixed_qty | 1,000,000 | 30% | 99.9 ns |
+| naive | narrow_range fixed_qty | 100 | 70% | 22.0 ns |
+| naive | narrow_range fixed_qty | 1,000 | 70% | 27.0 ns |
+| naive | narrow_range fixed_qty | 10,000 | 70% | 30.9 ns |
+| naive | narrow_range fixed_qty | 100,000 | 70% | 38.5 ns |
+| naive | narrow_range fixed_qty | 1,000,000 | 70% | 35.8 ns |
+| naive | narrow_range fixed_qty | 100 | 100% | 5.9 ns |
+| naive | narrow_range fixed_qty | 1,000 | 100% | 4.4 ns |
+| naive | narrow_range fixed_qty | 10,000 | 100% | 4.2 ns |
+| naive | narrow_range fixed_qty | 100,000 | 100% | 4.4 ns |
+| naive | narrow_range fixed_qty | 1,000,000 | 100% | 6.1 ns |
+| naive | wide_range varied_qty | 100 | 0% | 61.6 ns |
+| naive | wide_range varied_qty | 1,000 | 0% | 79.8 ns |
+| naive | wide_range varied_qty | 10,000 | 0% | 103.0 ns |
+| naive | wide_range varied_qty | 100,000 | 0% | 212.0 ns |
+| naive | wide_range varied_qty | 1,000,000 | 0% | 590.0 ns |
+| naive | wide_range varied_qty | 100 | 30% | 45.7 ns |
+| naive | wide_range varied_qty | 1,000 | 30% | 59.0 ns |
+| naive | wide_range varied_qty | 10,000 | 30% | 74.0 ns |
+| naive | wide_range varied_qty | 100,000 | 30% | 139.0 ns |
+| naive | wide_range varied_qty | 1,000,000 | 30% | 315.0 ns |
+| naive | wide_range varied_qty | 100 | 70% | 26.1 ns |
+| naive | wide_range varied_qty | 1,000 | 70% | 31.4 ns |
+| naive | wide_range varied_qty | 10,000 | 70% | 35.7 ns |
+| naive | wide_range varied_qty | 100,000 | 70% | 51.9 ns |
+| naive | wide_range varied_qty | 1,000,000 | 70% | 105.0 ns |
+| naive | wide_range varied_qty | 100 | 100% | 13.3 ns |
+| naive | wide_range varied_qty | 1,000 | 100% | 11.8 ns |
+| naive | wide_range varied_qty | 10,000 | 100% | 10.9 ns |
+| naive | wide_range varied_qty | 100,000 | 100% | 10.7 ns |
+| naive | wide_range varied_qty | 1,000,000 | 100% | 11.2 ns |
+| naive | wide_range fixed_qty | 100 | 0% | 61.6 ns |
+| naive | wide_range fixed_qty | 1,000 | 0% | 79.7 ns |
+| naive | wide_range fixed_qty | 10,000 | 0% | 104.0 ns |
+| naive | wide_range fixed_qty | 100,000 | 0% | 216.0 ns |
+| naive | wide_range fixed_qty | 1,000,000 | 0% | 605.0 ns |
+| naive | wide_range fixed_qty | 100 | 30% | 45.3 ns |
+| naive | wide_range fixed_qty | 1,000 | 30% | 57.2 ns |
+| naive | wide_range fixed_qty | 10,000 | 30% | 72.0 ns |
+| naive | wide_range fixed_qty | 100,000 | 30% | 136.0 ns |
+| naive | wide_range fixed_qty | 1,000,000 | 30% | 317.0 ns |
+| naive | wide_range fixed_qty | 100 | 70% | 22.0 ns |
+| naive | wide_range fixed_qty | 1,000 | 70% | 27.0 ns |
+| naive | wide_range fixed_qty | 10,000 | 70% | 31.4 ns |
+| naive | wide_range fixed_qty | 100,000 | 70% | 46.8 ns |
+| naive | wide_range fixed_qty | 1,000,000 | 70% | 98.2 ns |
+| naive | wide_range fixed_qty | 100 | 100% | 5.8 ns |
+| naive | wide_range fixed_qty | 1,000 | 100% | 4.4 ns |
+| naive | wide_range fixed_qty | 10,000 | 100% | 4.2 ns |
+| naive | wide_range fixed_qty | 100,000 | 100% | 4.3 ns |
+| naive | wide_range fixed_qty | 1,000,000 | 100% | 6.1 ns |
+| optimized | narrow_range varied_qty | 100 | 0% | 20.1 ns |
+| optimized | narrow_range varied_qty | 1,000 | 0% | 16.4 ns |
+| optimized | narrow_range varied_qty | 10,000 | 0% | 17.7 ns |
+| optimized | narrow_range varied_qty | 100,000 | 0% | 31.4 ns |
+| optimized | narrow_range varied_qty | 1,000,000 | 0% | 54.1 ns |
+| optimized | narrow_range varied_qty | 100 | 30% | 23.7 ns |
+| optimized | narrow_range varied_qty | 1,000 | 30% | 21.1 ns |
+| optimized | narrow_range varied_qty | 10,000 | 30% | 22.8 ns |
+| optimized | narrow_range varied_qty | 100,000 | 30% | 32.2 ns |
+| optimized | narrow_range varied_qty | 1,000,000 | 30% | 52.3 ns |
+| optimized | narrow_range varied_qty | 100 | 70% | 30.9 ns |
+| optimized | narrow_range varied_qty | 1,000 | 70% | 27.2 ns |
+| optimized | narrow_range varied_qty | 10,000 | 70% | 28.3 ns |
+| optimized | narrow_range varied_qty | 100,000 | 70% | 42.1 ns |
+| optimized | narrow_range varied_qty | 1,000,000 | 70% | 76.4 ns |
+| optimized | narrow_range varied_qty | 100 | 100% | 51.6 ns |
+| optimized | narrow_range varied_qty | 1,000 | 100% | 26.0 ns |
+| optimized | narrow_range varied_qty | 10,000 | 100% | 23.6 ns |
+| optimized | narrow_range varied_qty | 100,000 | 100% | 23.5 ns |
+| optimized | narrow_range varied_qty | 1,000,000 | 100% | 23.5 ns |
+| optimized | narrow_range fixed_qty | 100 | 0% | 19.9 ns |
+| optimized | narrow_range fixed_qty | 1,000 | 0% | 16.4 ns |
+| optimized | narrow_range fixed_qty | 10,000 | 0% | 17.7 ns |
+| optimized | narrow_range fixed_qty | 100,000 | 0% | 31.4 ns |
+| optimized | narrow_range fixed_qty | 1,000,000 | 0% | 55.4 ns |
+| optimized | narrow_range fixed_qty | 100 | 30% | 21.5 ns |
+| optimized | narrow_range fixed_qty | 1,000 | 30% | 18.6 ns |
+| optimized | narrow_range fixed_qty | 10,000 | 30% | 20.5 ns |
+| optimized | narrow_range fixed_qty | 100,000 | 30% | 29.3 ns |
+| optimized | narrow_range fixed_qty | 1,000,000 | 30% | 48.8 ns |
+| optimized | narrow_range fixed_qty | 100 | 70% | 25.9 ns |
+| optimized | narrow_range fixed_qty | 1,000 | 70% | 20.0 ns |
+| optimized | narrow_range fixed_qty | 10,000 | 70% | 22.1 ns |
+| optimized | narrow_range fixed_qty | 100,000 | 70% | 34.6 ns |
+| optimized | narrow_range fixed_qty | 1,000,000 | 70% | 75.8 ns |
+| optimized | narrow_range fixed_qty | 100 | 100% | 66.2 ns |
+| optimized | narrow_range fixed_qty | 1,000 | 100% | 18.9 ns |
+| optimized | narrow_range fixed_qty | 10,000 | 100% | 14.5 ns |
+| optimized | narrow_range fixed_qty | 100,000 | 100% | 14.2 ns |
+| optimized | narrow_range fixed_qty | 1,000,000 | 100% | 14.6 ns |
+| optimized | wide_range varied_qty | 100 | 0% | 60.3 ns |
+| optimized | wide_range varied_qty | 1,000 | 0% | 54.5 ns |
+| optimized | wide_range varied_qty | 10,000 | 0% | 49.7 ns |
+| optimized | wide_range varied_qty | 100,000 | 0% | 61.0 ns |
+| optimized | wide_range varied_qty | 1,000,000 | 0% | 84.0 ns |
+| optimized | wide_range varied_qty | 100 | 30% | 51.8 ns |
+| optimized | wide_range varied_qty | 1,000 | 30% | 46.1 ns |
+| optimized | wide_range varied_qty | 10,000 | 30% | 36.3 ns |
+| optimized | wide_range varied_qty | 100,000 | 30% | 48.2 ns |
+| optimized | wide_range varied_qty | 1,000,000 | 30% | 70.1 ns |
+| optimized | wide_range varied_qty | 100 | 70% | 41.2 ns |
+| optimized | wide_range varied_qty | 1,000 | 70% | 35.8 ns |
+| optimized | wide_range varied_qty | 10,000 | 70% | 33.7 ns |
+| optimized | wide_range varied_qty | 100,000 | 70% | 49.2 ns |
+| optimized | wide_range varied_qty | 1,000,000 | 70% | 75.1 ns |
+| optimized | wide_range varied_qty | 100 | 100% | 52.6 ns |
+| optimized | wide_range varied_qty | 1,000 | 100% | 26.2 ns |
+| optimized | wide_range varied_qty | 10,000 | 100% | 23.5 ns |
+| optimized | wide_range varied_qty | 100,000 | 100% | 23.4 ns |
+| optimized | wide_range varied_qty | 1,000,000 | 100% | 23.5 ns |
+| optimized | wide_range fixed_qty | 100 | 0% | 62.1 ns |
+| optimized | wide_range fixed_qty | 1,000 | 0% | 58.3 ns |
+| optimized | wide_range fixed_qty | 10,000 | 0% | 53.0 ns |
+| optimized | wide_range fixed_qty | 100,000 | 0% | 63.8 ns |
+| optimized | wide_range fixed_qty | 1,000,000 | 0% | 88.8 ns |
+| optimized | wide_range fixed_qty | 100 | 30% | 51.4 ns |
+| optimized | wide_range fixed_qty | 1,000 | 30% | 46.8 ns |
+| optimized | wide_range fixed_qty | 10,000 | 30% | 38.2 ns |
+| optimized | wide_range fixed_qty | 100,000 | 30% | 50.0 ns |
+| optimized | wide_range fixed_qty | 1,000,000 | 30% | 70.1 ns |
+| optimized | wide_range fixed_qty | 100 | 70% | 36.2 ns |
+| optimized | wide_range fixed_qty | 1,000 | 70% | 29.5 ns |
+| optimized | wide_range fixed_qty | 10,000 | 70% | 29.8 ns |
+| optimized | wide_range fixed_qty | 100,000 | 70% | 46.3 ns |
+| optimized | wide_range fixed_qty | 1,000,000 | 70% | 78.2 ns |
+| optimized | wide_range fixed_qty | 100 | 100% | 65.3 ns |
+| optimized | wide_range fixed_qty | 1,000 | 100% | 19.1 ns |
+| optimized | wide_range fixed_qty | 10,000 | 100% | 14.6 ns |
+| optimized | wide_range fixed_qty | 100,000 | 100% | 14.4 ns |
+| optimized | wide_range fixed_qty | 1,000,000 | 100% | 14.7 ns |
+
+</details>
+
+<details>
+<summary><code>BM_CancelBids</code></summary>
+
+| Implementation | Variant | Depth | Time |
+|---|---|---:|---:|
+| naive | — | 100 | 314.0 ns |
+| naive | — | 1,000 | 4.36 µs |
+| naive | — | 10,000 | 58.46 µs |
+| naive | — | 100,000 | 218.95 µs |
+| naive | — | 1,000,000 | 4.62 ms |
+| optimized | — | 100 | 24.1 ns |
+| optimized | — | 1,000 | 28.5 ns |
+| optimized | — | 10,000 | 40.7 ns |
+| optimized | — | 100,000 | 129.0 ns |
+| optimized | — | 1,000,000 | 259.0 ns |
+
+</details>
+
+<details>
+<summary><code>BM_CancelAsks</code></summary>
+
+| Implementation | Variant | Depth | Time |
+|---|---|---:|---:|
+| naive | — | 100 | 311.0 ns |
+| naive | — | 1,000 | 4.32 µs |
+| naive | — | 10,000 | 59.12 µs |
+| naive | — | 100,000 | 216.60 µs |
+| naive | — | 1,000,000 | 4.07 ms |
+| optimized | — | 100 | 23.9 ns |
+| optimized | — | 1,000 | 28.7 ns |
+| optimized | — | 10,000 | 40.8 ns |
+| optimized | — | 100,000 | 121.0 ns |
+| optimized | — | 1,000,000 | 261.0 ns |
+
+</details>
+
+</details>
 
 **Insertion (`NoMatch`, narrow range):** flat ~15–25ns for the optimized
 version across all depths from 100 to 1,000,000; the naive version stays in
