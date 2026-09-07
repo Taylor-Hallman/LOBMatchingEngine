@@ -18,7 +18,7 @@ void OrderBook::placeOrder(Order& incoming) {
                     m_asks.erase(m_asks.begin());
             }
             if (!incoming.remaining_qty)
-                return; // order was fulfilled immediately so will not be placed in the queue
+                return;
         }
         m_bids[incoming.price].push_back(std::move(incoming));
         break;

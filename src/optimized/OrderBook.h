@@ -35,12 +35,12 @@ private:
 
     uint64_t m_next_sequence{ UINT64_C(0) };
 
-    bool releaseOrder(size_t orderIdx);
 public:
     OrderBook();
-    void placeOrder(Order& incoming);
+    bool releaseOrder(size_t orderIdx);
+    size_t placeOrder(Order& incoming);
     bool cancelOrder(uint64_t id);
-    void clear();
+    void clear(bool resetOrderPool = true);
     size_t size();
     int64_t getBestBuyPrice();
     int64_t getBestSellPrice();

@@ -89,7 +89,7 @@ bool OrderBook::releaseOrder(size_t orderIdx) {
     return true;
 }
 
-void OrderBook::placeOrder(Order& incoming) {
+size_t OrderBook::placeOrder(Order& incoming) {
     incoming.sequence = m_next_sequence++;
 
     auto& incomingSide = incoming.side == Side::Buy ? m_bids : m_asks;
@@ -115,7 +115,7 @@ void OrderBook::placeOrder(Order& incoming) {
         if (!resting->remaining_qty)
             releaseOrder(bestIdxRestingSide);
         if (!incoming.remaining_qty)
-            return; // if this order was immediately exhausted, return early & don't allocate it in the pool
+            return INVALID_IDX; // if this order was immediately exhausted, return early & don't allocate it in the pool
 
         resting = m_orderPool.get(bestIdxRestingSide);
     }
@@ -152,6 +152,8 @@ void OrderBook::placeOrder(Order& incoming) {
         auto offset{ incoming.price % WORD_SIZE };
         word |= (UINT64_C(0x01) << offset);
     }
+
+    return idx;
 }
 
 bool OrderBook::cancelOrder(uint64_t id) {
@@ -160,19 +162,36 @@ bool OrderBook::cancelOrder(uint64_t id) {
     return releaseOrder(m_orderLocations.at(id));
 }
 
-/* clear() is quite slow: O(POOL_CAPACITY + MAX_PRICE) regardless of how many orders
+/* clear() is quite slow: O(POOL_CAPACITY) regardless of how many orders
  * are currently being tracked. This could be improved by keeping track of used slots
  * and only releasing those, but because clear() is not on the hot path and would very
  * rarely be called in a real production environment, there is little to be gained by
  * optimizing it.
  */
-void OrderBook::clear() {
+void OrderBook::clear(bool resetOrderPool) {
     m_orderLocations.clear();
-    m_orderPool.reset();
-    std::fill(m_bids.begin(), m_bids.end(), OrderList{ INVALID_IDX, INVALID_IDX });
-    std::fill(m_asks.begin(), m_asks.end(), OrderList{ INVALID_IDX, INVALID_IDX });
-    std::fill(m_bidOccupancy.begin(), m_bidOccupancy.end(), UINT64_C(0));
-    std::fill(m_askOccupancy.begin(), m_askOccupancy.end(), UINT64_C(0));
+    if (resetOrderPool)
+        m_orderPool.reset();
+    for (auto i{0uz}; i < OCCUPANCY_SIZE; ++i) {
+        auto bidZeros{ std::countr_zero(m_bidOccupancy[i]) };
+        auto askZeros{ std::countr_zero(m_askOccupancy[i]) };
+        while (bidZeros < WORD_SIZE) {
+            int64_t price{ static_cast<int64_t>(i * WORD_SIZE + bidZeros) };
+            m_bids[price] = OrderList{ INVALID_IDX, INVALID_IDX };
+            auto& word{ m_bidOccupancy[i] };
+            auto offset{ price % WORD_SIZE };
+            word &= ~(INT64_C(0x01) << offset);
+            bidZeros = std::countr_zero(m_bidOccupancy[i]);
+        }
+        while (askZeros < WORD_SIZE) {
+            int64_t price{ static_cast<int64_t>(i * WORD_SIZE + askZeros) };
+            m_asks[price] = OrderList{ INVALID_IDX, INVALID_IDX };
+            auto& word{ m_askOccupancy[i] };
+            auto offset{ price % WORD_SIZE };
+            word &= ~(INT64_C(0x01) << offset);
+            askZeros = std::countr_zero(m_askOccupancy[i]);
+        }
+    }
     m_bestBid = INVALID_IDX;
     m_bestAsk = INVALID_IDX;
 }

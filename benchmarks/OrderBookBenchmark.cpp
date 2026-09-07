@@ -7,11 +7,8 @@
 static const std::vector<int64_t> kDepths = {100, 1'000, 10'000, 100'000, 1'000'000};
 static const std::vector<int64_t> kMatchPcts = {0, 30, 70, 100};
 
-// Price range presets
 constexpr int64_t kNarrowMin{ 5000 }, kNarrowMax{ 15000 };
 constexpr int64_t kWideMin{ 0 }, kWideMax{ optimized::MAX_PRICE - 1 };
-
-// Fixed quantity used when FixedQty == true, guarantees clean full fills
 constexpr int64_t kFixedQty{ 100 };
 
 template <typename BookType, bool WideRange>
@@ -22,15 +19,33 @@ static void BM_PlaceOrder_NoMatch_Bids(benchmark::State& state) {
     state.SetLabel(WideRange ? "wide_range" : "narrow_range");
 
     BookType book;
+    constexpr bool isOpt{ std::is_same_v<BookType, optimized::OrderBook> };
     auto depth{ state.range(0) };
     std::vector<OrderType> orders;
+    std::vector<size_t> indexes;
     orders.reserve(depth);
+    auto place = [&](OrderType& order) {
+        if constexpr (isOpt) {
+            auto idx{ book.placeOrder(order) };
+            if (idx != optimized::INVALID_IDX)
+                indexes.push_back(idx);
+        } else {
+            book.placeOrder(order);
+        }
+    };
     auto reset = [&] {
-        book.clear();
+        if constexpr (isOpt) {
+            for (size_t idx : indexes)
+                book.releaseOrder(idx);
+            indexes.clear();
+            book.clear(false);
+        } else {
+            book.clear();
+        }
         orders.clear();
         for (auto i{0uz}; i < depth; ++i) {
             OrderType order{ GenerateOrder<OrderType>(Side::Buy, min, max) };
-            book.placeOrder(order);
+            place(order);
             orders.push_back(GenerateOrder<OrderType>(Side::Buy, min, max));
         }
     };
@@ -38,7 +53,7 @@ static void BM_PlaceOrder_NoMatch_Bids(benchmark::State& state) {
     reset();
     auto i{0uz};
     for (auto _ : state) {
-        book.placeOrder(orders[i++]);
+        place(orders[i++]);
         if (i >= depth) {
             state.PauseTiming();
             reset();
@@ -68,15 +83,33 @@ static void BM_PlaceOrder_NoMatch_Asks(benchmark::State& state) {
     state.SetLabel(WideRange ? "wide_range" : "narrow_range");
 
     BookType book;
+    constexpr bool isOpt{ std::is_same_v<BookType, optimized::OrderBook> };
     auto depth{ state.range(0) };
     std::vector<OrderType> orders;
+    std::vector<size_t> indexes;
     orders.reserve(depth);
+    auto place = [&](OrderType& order) {
+        if constexpr (isOpt) {
+            auto idx{ book.placeOrder(order) };
+            if (idx != optimized::INVALID_IDX)
+                indexes.push_back(idx);
+        } else {
+            book.placeOrder(order);
+        }
+    };
     auto reset = [&] {
-        book.clear();
+        if constexpr (isOpt) {
+            for (size_t idx : indexes)
+                book.releaseOrder(idx);
+            indexes.clear();
+            book.clear(false);
+        } else {
+            book.clear();
+        }
         orders.clear();
         for (auto i{0uz}; i < depth; ++i) {
             OrderType order{ GenerateOrder<OrderType>(Side::Sell, min, max) };
-            book.placeOrder(order);
+            place(order);
             orders.push_back(GenerateOrder<OrderType>(Side::Sell, min, max));
         }
     };
@@ -84,7 +117,7 @@ static void BM_PlaceOrder_NoMatch_Asks(benchmark::State& state) {
     reset();
     auto i{0uz};
     for (auto _ : state) {
-        book.placeOrder(orders[i++]);
+        place(orders[i++]);
         if (i >= depth) {
             state.PauseTiming();
             reset();
@@ -106,8 +139,6 @@ BENCHMARK_TEMPLATE(BM_PlaceOrder_NoMatch_Asks, optimized::OrderBook, true)
     ->Args({100})->Args({1'000})->Args({10'000})->Args({100'000})->Args({1'000'000})
     ->ArgNames({"depth"});
 
-// AlwaysMatch: no WideRange variant (resting side is pinned to a fixed band
-// by design, so price range doesn't change what's being measured here).
 template <typename BookType, bool FixedQty>
 static void BM_PlaceOrder_AlwaysMatch_BidsResting(benchmark::State& state) {
     using OrderType = typename BookType::OrderType;
@@ -118,15 +149,33 @@ static void BM_PlaceOrder_AlwaysMatch_BidsResting(benchmark::State& state) {
     state.SetLabel(FixedQty ? "fixed_qty" : "varied_qty");
 
     BookType book;
+    constexpr bool isOpt{ std::is_same_v<BookType, optimized::OrderBook> };
     auto depth{ state.range(0) };
     std::vector<OrderType> asks;
+    std::vector<size_t> indexes;
     asks.reserve(depth);
+    auto place = [&](OrderType& order) {
+        if constexpr (isOpt) {
+            auto idx{ book.placeOrder(order) };
+            if (idx != optimized::INVALID_IDX)
+                indexes.push_back(idx);
+        } else {
+            book.placeOrder(order);
+        }
+    };
     auto reset = [&] {
-        book.clear();
+        if constexpr (isOpt) {
+            for (size_t idx : indexes)
+                book.releaseOrder(idx);
+            indexes.clear();
+            book.clear(false);
+        } else {
+            book.clear();
+        }
         asks.clear();
         for (auto i{0uz}; i < depth; ++i) {
             OrderType order{ GenerateOrder<OrderType>(Side::Buy, restMin, restMax, qtyMin, qtyMax) };
-            book.placeOrder(order);
+            place(order);
             asks.push_back(GenerateOrder<OrderType>(Side::Sell, incMin, incMax, qtyMin, qtyMax));
         }
     };
@@ -134,7 +183,7 @@ static void BM_PlaceOrder_AlwaysMatch_BidsResting(benchmark::State& state) {
     reset();
     auto i{0uz};
     for (auto _ : state) {
-        book.placeOrder(asks[i++]);
+        place(asks[i++]);
         if (i >= depth) {
             state.PauseTiming();
             reset();
@@ -166,15 +215,33 @@ static void BM_PlaceOrder_AlwaysMatch_AsksResting(benchmark::State& state) {
     state.SetLabel(FixedQty ? "fixed_qty" : "varied_qty");
 
     BookType book;
+    constexpr bool isOpt{ std::is_same_v<BookType, optimized::OrderBook> };
     auto depth{ state.range(0) };
     std::vector<OrderType> bids;
+    std::vector<size_t> indexes;
     bids.reserve(depth);
+    auto place = [&](OrderType& order) {
+        if constexpr (isOpt) {
+            auto idx{ book.placeOrder(order) };
+            if (idx != optimized::INVALID_IDX)
+                indexes.push_back(idx);
+        } else {
+            book.placeOrder(order);
+        }
+    };
     auto reset = [&] {
-        book.clear();
+        if constexpr (isOpt) {
+            for (size_t idx : indexes)
+                book.releaseOrder(idx);
+            indexes.clear();
+            book.clear(false);
+        } else {
+            book.clear();
+        }
         bids.clear();
         for (auto i{0uz}; i < depth; ++i) {
             OrderType order{ GenerateOrder<OrderType>(Side::Sell, restMin, restMax, qtyMin, qtyMax) };
-            book.placeOrder(order);
+            place(order);
             bids.push_back(GenerateOrder<OrderType>(Side::Buy, incMin, incMax, qtyMin, qtyMax));
         }
     };
@@ -182,7 +249,7 @@ static void BM_PlaceOrder_AlwaysMatch_AsksResting(benchmark::State& state) {
     reset();
     auto i{0uz};
     for (auto _ : state) {
-        book.placeOrder(bids[i++]);
+        place(bids[i++]);
         if (i >= depth) {
             state.PauseTiming();
             reset();
@@ -215,19 +282,36 @@ static void BM_PlaceOrder_MixedTraffic_BidsResting(benchmark::State& state) {
                    (FixedQty ? "fixed_qty" : "varied_qty"));
 
     auto depth{ state.range(0) };
-
     BookType book;
+    constexpr bool isOpt{ std::is_same_v<BookType, optimized::OrderBook> };
     double match_probability{ state.range(1) / 100.0 };
     int64_t crossingPrice{ min + static_cast<int64_t>(match_probability * (max - min)) };
 
     std::vector<OrderType> orders;
+    std::vector<size_t> indexes;
     orders.reserve(depth);
+    auto place = [&](OrderType& order) {
+        if constexpr (isOpt) {
+            auto idx{ book.placeOrder(order) };
+            if (idx != optimized::INVALID_IDX)
+                indexes.push_back(idx);
+        } else {
+            book.placeOrder(order);
+        }
+    };
     auto reset = [&] {
-        book.clear();
+        if constexpr (isOpt) {
+            for (size_t idx : indexes)
+                book.releaseOrder(idx);
+            indexes.clear();
+            book.clear(false);
+        } else {
+            book.clear();
+        }
         orders.clear();
         for (auto i{0uz}; i < depth; ++i) {
             OrderType order{ GenerateOrder<OrderType>(Side::Buy, crossingPrice, crossingPrice, qtyMin, qtyMax) };
-            book.placeOrder(order);
+            place(order);
             orders.push_back(GenerateOrder<OrderType>(Side::Sell, min, max, qtyMin, qtyMax));
         }
     };
@@ -235,7 +319,7 @@ static void BM_PlaceOrder_MixedTraffic_BidsResting(benchmark::State& state) {
     reset();
     auto i{0uz};
     for (auto _ : state) {
-        book.placeOrder(orders[i++]);
+        place(orders[i++]);
         if (i >= depth) {
             state.PauseTiming();
             reset();
@@ -272,19 +356,36 @@ static void BM_PlaceOrder_MixedTraffic_AsksResting(benchmark::State& state) {
                    (FixedQty ? "fixed_qty" : "varied_qty"));
 
     auto depth{ state.range(0) };
-
     BookType book;
+    constexpr bool isOpt{ std::is_same_v<BookType, optimized::OrderBook> };
     double match_probability{ state.range(1) / 100.0 };
     int64_t crossingPrice{ max - static_cast<int64_t>(match_probability * (max - min)) };
 
     std::vector<OrderType> orders;
+    std::vector<size_t> indexes;
     orders.reserve(depth);
+    auto place = [&](OrderType& order) {
+        if constexpr (isOpt) {
+            auto idx{ book.placeOrder(order) };
+            if (idx != optimized::INVALID_IDX)
+                indexes.push_back(idx);
+        } else {
+            book.placeOrder(order);
+        }
+    };
     auto reset = [&] {
-        book.clear();
+        if constexpr (isOpt) {
+            for (size_t idx : indexes)
+                book.releaseOrder(idx);
+            indexes.clear();
+            book.clear(false);
+        } else {
+            book.clear();
+        }
         orders.clear();
         for (auto i{0uz}; i < depth; ++i) {
             OrderType order{ GenerateOrder<OrderType>(Side::Sell, crossingPrice, crossingPrice, qtyMin, qtyMax) };
-            book.placeOrder(order);
+            place(order);
             orders.push_back(GenerateOrder<OrderType>(Side::Buy, min, max, qtyMin, qtyMax));
         }
     };
@@ -292,7 +393,7 @@ static void BM_PlaceOrder_MixedTraffic_AsksResting(benchmark::State& state) {
     reset();
     auto i{0uz};
     for (auto _ : state) {
-        book.placeOrder(orders[i++]);
+        place(orders[i++]);
         if (i >= depth) {
             state.PauseTiming();
             reset();
@@ -318,7 +419,8 @@ BENCHMARK_TEMPLATE(BM_PlaceOrder_MixedTraffic_AsksResting, optimized::OrderBook,
 BENCHMARK_TEMPLATE(BM_PlaceOrder_MixedTraffic_AsksResting, optimized::OrderBook, true, true)
     ->ArgsProduct({kDepths, kMatchPcts})->ArgNames({"depth", "match_pct"});
 
-// Cancel benchmarks: no price/quantity variants, just named depth arg.
+// Cancel benchmarks unchanged — they never call clear(), they already
+// maintain bounded book size via shuffle-and-replenish.
 template <typename BookType>
 static void BM_CancelBids(benchmark::State& state) {
     using OrderType = typename BookType::OrderType;
