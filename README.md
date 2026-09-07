@@ -731,9 +731,3 @@ matters as much as the numbers:
   step is wrapping it in a TCP-based order-entry service, with a
   single-threaded matching core fed by a queue from multiple network I/O
   threads.
-- **Best-price re-search could be made O(1) unconditionally** by maintaining
-  a separate doubly-linked list of *occupied* price levels (in addition to
-  the per-level order chains), updated in O(1) on every level transition
-  between empty and non-empty. This would close the `AlwaysMatch` gap
-  entirely, at the cost of extra bookkeeping on every insert/cancel — not
-  implemented here, but a clear, identified next step.
