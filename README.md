@@ -1,14 +1,13 @@
 # Order Book Matching Engine
 
-A C++23 limit order book matching engine, built in two parallel implementations — a
+A C++23 limit order book matching engine, built in two parallel implementations: a
 **naive** version using standard-library containers, and a hand-optimized,
-low-latency version — with a shared test suite and a benchmark harness that
+low-latency version, with a shared test suite and a benchmark harness that
 measures the real-world performance difference between them.
 
 This project was built to explore the systems-level engineering that goes into
 quant/HFT-style infrastructure: cache-conscious data structures, allocation-free
-hot paths, and rigorous, reproducible performance measurement — not just "does it
-match orders correctly," but "how fast, and why."
+hot paths, and rigorous, reproducible performance measurement.
 
 ## Contents
 
@@ -27,38 +26,38 @@ match orders correctly," but "how fast, and why."
 
 Both implementations expose the same core interface:
 
-- `placeOrder(Order&)` — submit a new limit order; matches against the resting
+- `placeOrder(Order&)`: submit a new limit order; matches against the resting
   book using price-time priority, and rests any unfilled remainder.
-- `cancelOrder(uint64_t id)` — cancel a resting order by id.
-- `getBestBuyPrice()` / `getBestSellPrice()` — top-of-book price queries.
-- `getBidsAtPrice(price)` / `getAsksAtPrice(price)` — depth queries at a
+- `cancelOrder(uint64_t id)`: cancel a resting order by id.
+- `getBestBuyPrice()` / `getBestSellPrice()`: top-of-book price queries.
+- `getBidsAtPrice(price)` / `getAsksAtPrice(price)`: depth queries at a
   specific price level.
-- `size()` — total resting order count.
+- `size()`: total resting order count.
 
-Orders are modeled for a single equity-style instrument (a stock, not an
-options contract), with integer-tick prices (no floating point) and standard
-price-time priority matching: a resting order always trades at its own
-displayed price, and orders at the same price fill in arrival order.
+Orders are modeled for a single equity-style instrument (a stock), with 
+integer-tick prices (no floating point) and standard price-time priority 
+matching: a resting order always trades at its own displayed price, and 
+orders at the same price fill in arrival order.
 
 ## Architecture
 
 ### Naive implementation
 
-`namespace naive` — the baseline, built first, for correctness and as a
+`namespace naive`: the baseline, built first, for correctness and as a
 performance reference point.
 
 - **Price levels:** `std::map<int64_t, std::deque<Order>>`, one for bids
   (`std::greater`) and one for asks (`std::less`).
 - **Time priority:** FIFO via `std::deque` order.
-- **Cancellation:** linear search/erase within a price level's deque — O(n)
+- **Cancellation:** linear search/erase within a price level's deque; O(n)
   at that level.
-- **Best price:** `std::map::begin()` — effectively free, since the tree
+- **Best price:** `std::map::begin()` is effectively free, since the tree
   maintains a cached leftmost/rightmost pointer incrementally on every
   insert/erase.
 
 ### Optimized implementation
 
-`namespace optimized` — a low-latency redesign targeting the naive version's
+`namespace optimized`: a low-latency redesign targeting the naive version's
 two weak points: O(log n) price-level lookup and O(n) cancellation.
 
 - **Price levels:** flat arrays (`m_bids`/`m_asks`), indexed directly by
@@ -71,7 +70,7 @@ two weak points: O(log n) price-level lookup and O(n) cancellation.
   beyond the pool itself. The pool grows (doubling) when exhausted; all
   cross-references use pool **indices**, not raw pointers, so growth-driven
   reallocation never invalidates anything.
-- **Time priority:** an intrusive doubly-linked list per price level — `next`/
+- **Time priority:** an intrusive doubly-linked list per price level. `next`/
   `prev` fields live directly on `Order`, threaded through pool storage, with
   each price level tracking its own `head`/`tail` for O(1) append and O(1)
   removal from anywhere in the chain (not just the ends).
@@ -81,7 +80,7 @@ two weak points: O(log n) price-level lookup and O(n) cancellation.
   insert. When the current best price level empties out, a bitmap of
   occupied price levels (one bit per tick, scanned via `std::countr_zero`/
   `countl_zero`) finds the next-best occupied level in a small, bounded
-  number of word-scans — not a full linear scan of the price range.
+  number of word-scans, not a full linear scan of the price range.
 
 This design is a deliberate memory-for-latency trade: both implementations'
 price arrays and the optimized pool are sized for a bounded price range
@@ -119,20 +118,20 @@ ctest --output-on-failure
 ## Benchmarking
 
 Performance is measured with Google Benchmark, using the same `BookType`
-template pattern as the tests — every benchmark runs against both
+template pattern as the tests. Every benchmark runs against both
 implementations with identical, controlled inputs.
 
 Each benchmark isolates one specific behavior (never a random mix of
 behaviors) and is parameterized along the dimensions that plausibly affect
 performance:
 
-- **Book depth** — 100 to 1,000,000 resting orders.
-- **Price concentration** — narrow range (heavy same-price collision, stresses
+- **Book depth:** 100 to 1,000,000 resting orders.
+- **Price concentration:** narrow range (heavy same-price collision, stresses
   chain-length) vs. wide range (sparse, stresses array/bitmap scanning).
-- **Match rate** (`MixedTraffic` only) — 0–100% of incoming orders cross the
+- **Match rate** (`MixedTraffic` only): 0–100% of incoming orders cross the
   book, letting the mix of pure-insert and pure-match cost be measured
   directly rather than blended by chance.
-- **Fixed vs. varied quantity** — fixed quantities guarantee clean full
+- **Fixed vs. varied quantity:** fixed quantities guarantee clean full
   fills, isolating match cost from partial-fill cost.
 
 ```bash
@@ -668,7 +667,7 @@ expected consequence of O(n) deque-middle removal. The optimized version
 stays essentially flat, ~24ns to ~260ns across the same range — a
 **>10,000x** improvement at the largest depth tested.
 
-**`AlwaysMatch` / 100% match rate — the one case where naive wins:** when
+**`AlwaysMatch` / 100% match rate, the one case where naive wins:** when
 every incoming order crosses and fully depletes the book, the naive version
 is faster (down to ~10–20ns) than the optimized version (up to ~240ns at
 high depth). This is a real, structural finding, not noise — see the
@@ -681,28 +680,27 @@ matters as much as the numbers:
 
 - **Why the naive version wins on `AlwaysMatch`.** `std::map` maintains a
   cached leftmost/rightmost pointer as a side effect of every insert/erase,
-  so `begin()`/`rbegin()` — the naive version's best-price lookup — is
+  so `begin()`/`rbegin()`, the naive version's best-price lookup, is
   genuinely O(1) with zero incremental cost. The optimized version's cached
   best-price pointer is *also* O(1) most of the time, but when the current
   best price level fully empties, it has to actively search the occupancy
-  bitmap for the next-best level — real work the naive version's tree never
-  has to do, because it was paying that cost incrementally all along. Under
-  a workload that's 100% matching with no cancellations, this search
+  bitmap for the next-best level. This is real work the naive version's tree 
+  never has to do, because it was paying that cost incrementally all along. 
+  Under a workload that's 100% matching with no cancellations, this search
   triggers on nearly every operation, and the optimized design's other
   advantages (O(1) insert, O(1) cancel) aren't in play to compensate. Under
-  more realistic mixed traffic — partial match rates, real cancellation load
-  — the optimized version's advantages dominate by a wide margin. This is a
-  genuine tradeoff, not a bug: the optimized design trades a small, bounded,
-  occasional cost on best-price re-search for large, consistent wins
-  everywhere else.
+  more realistic mixed traffic (partial match rates, real cancellation load),
+  the optimized version's advantages dominate by a wide margin. This is a
+  genuine tradeoff: the optimized design trades a small, bounded, occasional 
+  cost on best-price re-search for large, consistent wins everywhere else.
 
 - **Why `clear()` was deliberately left unoptimized.** The optimized book's
   `clear()` resets its full backing structures (O(pool capacity +
   price-range size)), rather than tracking touched slots for a
   proportional-cost reset. This is intentional: `clear()` isn't a realistic
   hot-path operation for a real exchange (a book is built up once and runs
-  continuously, not repeatedly cleared), so optimizing it — which would
-  require extra memory bookkeeping — wasn't worth the added complexity for a
+  continuously, not repeatedly cleared), so optimizing it, which would
+  require extra memory bookkeeping, wasn't worth the added complexity for a
   function that exists mainly to serve the benchmark harness's reset
   cadence between measurement cycles. The benchmark harness works around
   this itself (via targeted `cancelOrder`/`releaseOrder` calls rather than
@@ -717,7 +715,7 @@ matters as much as the numbers:
 - **Indices, not pointers, for all cross-references.** Both the order pool
   and the intrusive per-price-level linked list reference orders by pool
   index rather than raw pointer, specifically because the pool's backing
-  `std::vector` can reallocate on growth — pointers into it would be
+  `std::vector` can reallocate on growth. Pointers into it would be
   silently invalidated, while indices remain valid across a resize.
 
 ## Known limitations & future work
